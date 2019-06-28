@@ -1,0 +1,36 @@
+{% load i18n static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <meta name="copyright" content="Marco Marinello">
+
+    <link rel="stylesheet" href="{% static 'bootstrap4/css/bootstrap.min.css' %}">
+    <link rel="stylesheet" href="{% static 'fontawesome5/css/all.min.css' %}">
+    <link rel="stylesheet" href="{% static 'datatables1/datatables.min.css' %}">
+
+    <script src="{% static 'jquery3/jquery.min.js' %}"></script>
+    <script src="{% static 'popperjs1/umd/popper.min.js' %}"></script>
+    <script src="{% static 'bootstrap4/js/bootstrap.min.js' %}"></script>
+    <script src="{% static 'datatables1/datatables.min.js' %}"></script>
+    <script src="{% static 'flot0/jquery.flot.js' %}"></script>
+
+    <title>{% block title %}Base template{% endblock %} - InfoJuice</title>
+  </head>
+  <body>
+    {% block standardcontent %}
+    <div class="container">
+      <div class="jumbotron">
+        {% for message in messages %}
+        <div class="alert alert-{{message.tags}}">
+          {{message}}
+        </div>
+        {% endfor %}
+        {% block content %}
+        {% endblock content %}
+      </div>
+    </div>
+    {% endblock standardcontent %}
+  </body>
+</html>

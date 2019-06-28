@@ -1,0 +1,39 @@
+{% extends "base.html" %}{% load i18n static %}
+
+{% block title %}{% trans "Trigger new import pipeline" %}{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1>{% trans "Trigger new import pipeline" %}</h1>
+</div>
+
+<br>
+
+<div class="text-center">
+  <img src="{% static 'img/analysis.png' %}" style="max-width: 80%;" >
+</div>
+
+<br>
+
+<form action="" onsubmit="return false;">
+  <div class="row">
+    <div class="col-lg-4">
+      <select id="study">
+        <option id="chiesa">Chiesa in Valmalenco</option>
+        <option id="milano">Milano</option>
+      </select>
+    </div>
+    <div class="col-lg-4">
+      <input type="file" id="dataset" />
+    </div>
+    <div class="col-lg-4 text-center">
+      <a href="#upload" class="btn btn-lg btn-warning" style="color: white;">
+        <i class="fas fa-upload" aria-hidden="true"></i>
+        {% trans "Upload" %}
+      </a>
+    </div>
+  </div>
+</form>
+
+{% endblock %}

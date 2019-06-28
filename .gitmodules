@@ -1,0 +1,3 @@
+[submodule "plic_pipeline_gui/djcsf"]
+	path = plic_pipeline_gui/djcsf
+	url = https://gitlab.com/mmaridev/djcsf.git
