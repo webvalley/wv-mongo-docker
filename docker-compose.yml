@@ -10,7 +10,7 @@ services:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_ROOT_USER:-root}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_ROOT_PW:-changeme}
     volumes:
-      mongo-data:/data/db
+      - mongo-data:/data/db
 
 
   mongo-express:
