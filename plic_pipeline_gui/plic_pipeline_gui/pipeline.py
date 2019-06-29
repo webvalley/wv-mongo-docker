@@ -16,8 +16,17 @@ def trigger(filename, study):
         imp.translate_cols,
     ]
 
-    import time
+    yield "\n" + json.dumps({"current_stage": 0, "stages": len(functions), "stage_name": ""})
+
     for i in enumerate(functions):
-        time.sleep(0.9)
-        print(i)
+        try:
+            i[1]()
+        except Exception as e:
+            print(e)
+            yield "\n" + json.dumps({
+                "current_stage": i[0]+1,
+                "stages": len(functions),
+                "stage_name": "%s raised %s" %(i[1].__name__, e)
+            })
+            return
         yield "\n" + json.dumps({"current_stage": i[0]+1, "stages": len(functions), "stage_name": i[1].__name__})

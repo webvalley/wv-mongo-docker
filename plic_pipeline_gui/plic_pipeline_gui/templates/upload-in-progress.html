@@ -17,8 +17,8 @@ function ajax_start() {
     type: "POST",
     url: "{% url 'do-ajax-upload' %}",
     data: {"csrfmiddlewaretoken": "{{ csrf_token }}",
-           "filename": "test",
-           "study": "chiesa"},
+           "filename": "{{ fpath }}",
+           "study": "{{ f.study }}"},
     xhrFields: {
       onprogress: function(e) {
         var all = e.currentTarget.response.split("\n");
@@ -60,7 +60,7 @@ $(document).ready(ajax_start);
 <br><br>
 
 <div class="progress">
-  <div id="pgbar" class="progress-bar progress-bar-danger progress-bar-striped active"
+  <div id="pgbar" class="progress-bar progress-bar-danger progress-bar-animated progress-bar-striped active"
     role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
   </div>
 </div>
