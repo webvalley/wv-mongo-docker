@@ -16,22 +16,17 @@
 
 <br>
 
-<form action="" onsubmit="return false;">
+<form action="{% url 'do-upload' %}" enctype="multipart/form-data" method="POST">
+  {% csrf_token %}
   <div class="row">
-    <div class="col-lg-4">
-      <select id="study">
-        <option id="chiesa">Chiesa in Valmalenco</option>
-        <option id="milano">Milano</option>
-      </select>
-    </div>
-    <div class="col-lg-4">
-      <input type="file" id="dataset" />
+    <div class="col-lg-8">
+      {{form.as_p}}
     </div>
     <div class="col-lg-4 text-center">
-      <a href="#upload" class="btn btn-lg btn-warning" style="color: white;">
+      <button role="submit" href="#upload" class="btn btn-lg btn-warning" style="color: white;">
         <i class="fas fa-upload" aria-hidden="true"></i>
         {% trans "Upload" %}
-      </a>
+      </button>
     </div>
   </div>
 </form>
