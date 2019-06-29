@@ -1,0 +1,69 @@
+{% extends "base.html" %}{% load i18n static %}
+
+{% block title %}{% trans "Trigger new import pipeline" %}{% endblock %}
+
+{% block content %}
+
+<script type="text/javascript">
+
+$.ajaxSetup({
+    beforeSend: function(xhr, settings) {
+      xhr.setRequestHeader("X-CSRFToken", "{{csrf_token}}");
+    }
+});
+
+function ajax_start() {
+  $.ajax({
+    type: "POST",
+    url: "{% url 'do-ajax-upload' %}",
+    data: {"csrfmiddlewaretoken": "{{ csrf_token }}",
+           "filename": "test",
+           "study": "chiesa"},
+    xhrFields: {
+      onprogress: function(e) {
+        var all = e.currentTarget.response.split("\n");
+        if (all.length < 2) return;
+        var current = JSON.parse(all[all.length-1]);
+        console.log(current);
+        var act = current["current_stage"]*100/current["stages"];
+        var pgbar = $("#pgbar");
+        pgbar.attr("aria-valuenow", act);
+        pgbar.css("width", "" + act + "%");
+        $("#cstage").text(current["current_stage"] + "/" + current["stages"] + " " + current["stage_name"]);
+      }
+    },
+  });
+}
+
+$(document).ready(ajax_start);
+
+</script>
+
+<div class="page-header">
+  <h1>{% trans "Trigger new import pipeline" %}</h1>
+</div>
+
+<br>
+
+<div class="text-center">
+  <img src="{% static 'img/analysis.png' %}" style="max-width: 80%;" >
+</div>
+
+<br>
+
+{% trans "Pipeline status of" %} <b>{{f.dataset}}</b>
+
+<br>
+
+<a id="cstage"></a>
+
+<br><br>
+
+<div class="progress">
+  <div id="pgbar" class="progress-bar progress-bar-danger progress-bar-striped active"
+    role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" style="width: 0%">
+  </div>
+</div>
+
+
+{% endblock %}

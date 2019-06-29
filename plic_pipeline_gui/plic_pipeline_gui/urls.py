@@ -14,8 +14,11 @@ Including another URLconf
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
 from django.urls import path
-from django.views.generic import TemplateView
+from . import views
+
 
 urlpatterns = [
-    path("", TemplateView.as_view(template_name="index.html"), name="index"),
+    path("", views.IndexView.as_view(), name="index"),
+    path("upload", views.preUpload.as_view(), name="do-upload"),
+    path("upload/ajax", views.UploadAjax.as_view(), name="do-ajax-upload"),
 ]
