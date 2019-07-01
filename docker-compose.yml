@@ -11,6 +11,8 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: WV_19_Mongo
     volumes:
       - mongo-data:/data/db
+    ports:
+      - 27017:27017
 
 
   mongo-express:
