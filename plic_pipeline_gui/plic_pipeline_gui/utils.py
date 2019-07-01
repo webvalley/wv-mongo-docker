@@ -1,8 +1,8 @@
-#!/usr/bin/env python
-# coding: utf-8
-
-# In[1]:
-
+# Copyright (c) 2019 Julian Modanese <01modjul@rgtfo-me.it>
+# Copyright (c) 2019 Marco Marinello <marco.marinello@school.rainerum.it>
+# This script has been developed thanks to the help recived
+# from Marco Chierici, Valerio Maggio, Stefano Fioravanzo
+# & the whole MPBA Team@FBK
 
 import pandas as pd
 import numpy as np
@@ -13,14 +13,8 @@ from sklearn import preprocessing
 from datetime import datetime
 
 
-# In[2]:
-
-
 class Plic_import_error(Exception):
     pass
-
-
-# In[3]:
 
 class Plic_importer:
     nan_value = -1
@@ -31,6 +25,7 @@ class Plic_importer:
         self.file_name = file_name
         self.df = None
         self.map_dict = {}
+        self.cols_export = "/tmp/cols_export.csv"
 
     def __call__(self):
         return self.df
@@ -39,7 +34,7 @@ class Plic_importer:
         self.df = pd.read_excel(self.file_name, index_col=self.index_col).fillna(self.nan_value)
 
     def csv_to_pandas_df(self):
-        return pd.read_csv(self.file_name, index_col=self.index_col, sep=self.sep).fillna(self.nan_value)
+        self.df = pd.read_csv(self.file_name, index_col=self.index_col, sep=self.sep).fillna(self.nan_value)
 
     def drop_empty_cols(self):
         cols_to_drop = []
@@ -121,8 +116,9 @@ class Plic_importer:
                 "mancante": -1,
                  -1: -1,
                  -1.0: -1}
-        le = preprocessing.LabelEncoder()
+
         for col in self.df.columns.values:
+            le = preprocessing.LabelEncoder()
             if self.df[col].dtypes == "object_":
                 remove_list = ["-1", -1, -1.0]
                 unique_list = [str(item) for item in self.df[col].unique() if item not in remove_list]
@@ -137,6 +133,15 @@ class Plic_importer:
                     self.map_dict[col] = col_map_dict
 
         self.df = self.df.fillna(self.nan_value)
+
+
+    def export_mapped_columns(self):
+        vals_conv = []
+        for i in self.map_dict:
+            for x in self.map_dict[i]:
+                vals_conv.append([i, x, self.map_dict[i][x]])
+        pd.DataFrame(vals_conv, columns=["column", "value", "replacing"]).to_csv(self.cols_export)
+
 
     def drop_useless_columns(self):
         bad_col_contains = ["note", "endotelio",
