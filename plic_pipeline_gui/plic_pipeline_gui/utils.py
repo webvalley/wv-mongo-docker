@@ -25,7 +25,6 @@ class Plic_importer:
         self.file_name = file_name
         self.df = None
         self.map_dict = {}
-        self.cols_export = "/tmp/cols_export.csv"
 
     def __call__(self):
         return self.df
@@ -140,7 +139,9 @@ class Plic_importer:
         for i in self.map_dict:
             for x in self.map_dict[i]:
                 vals_conv.append([i, x, self.map_dict[i][x]])
-        pd.DataFrame(vals_conv, columns=["column", "value", "replacing"]).to_csv(self.cols_export)
+        return pd.DataFrame(
+                vals_conv, columns=["column", "value", "replacing"]
+            ).to_csv()
 
 
     def drop_useless_columns(self):
