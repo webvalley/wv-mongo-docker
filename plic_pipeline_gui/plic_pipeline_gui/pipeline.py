@@ -4,6 +4,23 @@ from .utils import Plic_importer
 import json
 
 
+separation = [
+    [['excel_to_pandas_df', "Parse uploaded file"]],
+    [
+        ['drop_empty_cols', "Drop empty columns"],
+        ['visit_cols_to_rows', "Move different visits to one row each"],
+        ['convert_string_values', "Convert string to numbers"],
+        ['drop_useless_columns', "Remove unuseful columns for the AI"],
+        ['fix_useful_string_columns', "Fix known problems with some columns"],
+        ['translate_cols', "Translate column labels into English"]
+    ]
+]
+
+
+def frontend_msg(value):
+    return "\n%s" % (json.dumps(value))
+
+
 def trigger(filename, study):
     imp = Plic_importer(filename)
     functions = [
@@ -16,7 +33,9 @@ def trigger(filename, study):
         imp.translate_cols,
     ]
 
-    yield "\n" + json.dumps({"current_stage": 0, "stages": len(functions), "stage_name": ""})
+    yield frontend_msg({
+        "next_stage": functions[0].__name__
+    })
 
     for i in enumerate(functions):
         try:
@@ -24,9 +43,16 @@ def trigger(filename, study):
         except Exception as e:
             print(e)
             yield "\n" + json.dumps({
-                "current_stage": i[0]+1,
-                "stages": len(functions),
-                "stage_name": "%s raised %s" %(i[1].__name__, e)
+                "current_stage": i[1].__name__,
+                "status": "error",
+                "error": "An error (%s) occurred while running %s" % (e, i[1].__name__)
             })
-            return
-        yield "\n" + json.dumps({"current_stage": i[0]+1, "stages": len(functions), "stage_name": i[1].__name__})
+            raise StopIteration
+        yield "\n" + json.dumps({
+            "current_stage": i[1].__name__,
+            "next_stage": len(functions) > i[0]+1 and functions[i[0]+1].__name__ or None,
+        })
+
+    yield "\n" + json.dumps({
+        "status": "complete"
+    })
