@@ -30,7 +30,11 @@ class preUpload(FormView):
         return render(
             self.request,
             "upload-in-progress.html",
-            {"f": form.cleaned_data, "fpath": new_path}
+            {
+                "f": form.cleaned_data,
+                "fpath": new_path,
+                "separation": pipeline.separation
+            }
         )
 
 

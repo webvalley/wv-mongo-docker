@@ -1,8 +1,18 @@
 {% extends "base.html" %}{% load i18n static %}
 
-{% block title %}{% trans "Trigger new import pipeline" %}{% endblock %}
+{% block title %}{% trans "Pipeline monitor" %}{% endblock %}
 
 {% block content %}
+
+
+<style type="text/css">
+
+.green {color: green;}
+.orange {color: orange;}
+.red {color: red;}
+
+</style>
+
 
 <script type="text/javascript">
 
@@ -13,6 +23,7 @@ $.ajaxSetup({
 });
 
 function ajax_start() {
+  document.parsed = [];
   $.ajax({
     type: "POST",
     url: "{% url 'do-ajax-upload' %}",
@@ -23,13 +34,30 @@ function ajax_start() {
       onprogress: function(e) {
         var all = e.currentTarget.response.split("\n");
         if (all.length < 2) return;
-        var current = JSON.parse(all[all.length-1]);
-        console.log(current);
-        var act = current["current_stage"]*100/current["stages"];
-        var pgbar = $("#pgbar");
-        pgbar.attr("aria-valuenow", act);
-        pgbar.css("width", "" + act + "%");
-        $("#cstage").text(current["current_stage"] + "/" + current["stages"] + " " + current["stage_name"]);
+        for (k in all) {
+          if (all[k]) var current = JSON.parse(all[k]);
+          else var current = "";
+          if (current && document.parsed.indexOf(current) == -1) {
+            console.log(current);
+            if ("next_stage" in current) {
+              $("#"+current["next_stage"]+"_icon").attr("class", "fas fa-cog fa-spin");
+            }
+            if ("current_stage" in current) {
+              $("#"+current["current_stage"]+"_icon").attr("class", "fas fa-check green");
+            }
+            if (current["status"] == "error") {
+              $("#"+current["current_stage"]+"_icon").attr("class", "fas fa-times-circle red");
+              $("#pipeline_status").text("{% trans 'Failed' %}").attr("class", "red");
+              $("#pipeline_status_icon").attr("class", "fas fa-times red")
+              $("#error").slideDown().text(current["error"]);
+            }
+            else if (current["status"] == "complete") {
+              $("#pipeline_status").text("{% trans 'Complete' %}").attr("class", "green");
+              $("#pipeline_status_icon").attr("class", "fas fa-check green");
+            }
+            document.parsed.push(current)
+          }
+        }
       }
     },
   });
@@ -39,25 +67,20 @@ $(document).ready(ajax_start);
 
 </script>
 
+
 <div class="page-header">
-  <h1>{% trans "Trigger new import pipeline" %}</h1>
+  <h2>
+    <i id="pipeline_status_icon" aria-hidden="true" class="fas fa-spinner fa-pulse"></i>
+    <b id="pipeline_status">{% trans "Running" %}</b>
+  </h2>
+  {% trans "Pipeline" %} <i>{{f.dataset}}</i>
 </div>
 
 <br>
 
-<div class="text-center">
-  <img src="{% static 'img/analysis.png' %}" style="max-width: 80%;" >
-</div>
+<div class="alert alert-danger" style="display:none;" id="error"></div>
 
 <br>
-
-{% trans "Pipeline status of" %} <b>{{f.dataset}}</b>
-
-<br>
-
-<a id="cstage"></a>
-
-<br><br>
 
 <div class="progress">
   <div id="pgbar" class="progress-bar progress-bar-danger progress-bar-animated progress-bar-striped active"
@@ -65,5 +88,23 @@ $(document).ready(ajax_start);
   </div>
 </div>
 
+<div class="row">
+  <div class="col-lg-3"><img src="{% static 'img/spreadsheet.png' %}" style="max-width:100%;"></div>
+  <div class="col-lg-9">
+    <br><br>
+    {% for i in separation.0 %}
+    <i id="{{ i.0 }}_icon" class="fas fa-pause-circle orange" aria-hidden="true"></i>&nbsp; {{i.1}}<br>
+    {% endfor %}
+  </div>
+</div>
+<div class="row">
+  <div class="col-lg-3"><img src="{% static 'img/scopettina.png' %}" style="max-width:80%;"></div>
+  <div class="col-lg-9">
+    <br>
+    {% for i in separation.1 %}
+    <i id="{{ i.0 }}_icon" class="fas fa-pause-circle orange" aria-hidden="true"></i>&nbsp; {{i.1}}<br>
+    {% endfor %}
+  </div>
+</div>
 
 {% endblock %}
