@@ -50,6 +50,8 @@ def trigger(filename, study):
         }
         try:
             out = i[1]()
+            with open(i[1].__name__+".log.txt", "w") as fh:
+                fh.write(str(list(imp.df.columns.values)))
             if i[1].__name__ == "export_mapped_columns":
                 status["artifacts"] = {
                     "Encoded columns association": out
@@ -61,10 +63,11 @@ def trigger(filename, study):
                 "status": "error",
                 "error": "An error (%s) occurred while running %s" % (e, i[1].__name__)
             })
+            print(list(imp.df.columns.values))
+            imp.df.to_csv("/tmp/Valerio.csv")
             raise StopIteration
         yield "\n" + json.dumps(status)
 
-    imp.df.to_csv("/tmp/Valerio.csv")
 
     yield "\n" + json.dumps({
         "status": "complete"
