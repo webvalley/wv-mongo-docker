@@ -12,6 +12,7 @@ import re
 from sklearn import preprocessing
 from datetime import datetime
 from collections import defaultdict
+from itertools import product
 
 
 class PLICImporterError(Exception):
@@ -72,7 +73,7 @@ class PLICImporter:
         perdurant_cols = [x for x in self.df.columns if x not in mv_cols]
 
         single = defaultdict(list)
-        new_cols = ["cod_pz"]
+        new_cols = [] #["cod_pz", "visit"]
 
         for col in self.df.columns.values:
             if col in perdurant_cols:
@@ -84,21 +85,47 @@ class PLICImporter:
                 col.replace("__", "_")
                 if col.endswith("_"):
                     col = col[:-1]
-                new_cols.append(col)
+                if col not in new_cols:
+                    new_cols.append(col)
                 single[col].append(old_col)
 
-        new_data = []
+        cols_per_line = []
+        max_len = len(max(single.values(), key=len))
+        for i in range(max_len):
+            cols_per_line.append(["dummyvisit%s" % i])
 
-        for paz in self.df.index.values:
-                obj = self.df.loc[paz]
-                new_df_row = {}
-                for col in new_cols:
-                    if not col in single:
-                        new_df_row[col] = obj[col]
-                    else:
-                        pass # Nu caz, aspetta che CIC Valerio si inventi qualcosa
+        for col in new_cols:
+            if col not in single:
+                # The col is perdurant and should be present
+                # for each visit
+                for i in range(max_len):
+                    cols_per_line[i].append(col)
+            else:
+                fill = {a: False for a in range(max_len)}
+                for field in single[col]:
+                    field_no = field.replace("_recod", "").replace("_a", "")
+                    cols_per_line[int(field_no[-1])-1].append(field)
+                    fill[int(field_no[-1])-1] = True
+                missing = filter(lambda a: not fill[a], fill)
+                for key in missing:
+                    cols_per_line[key].append("dummycol")
 
-        self.df = pd.DataFrame(new_data, columns=new_cols).fillna(self.NAN_VALUE)
+
+        self.df["dummycol"] = None
+        for i in range(max_len):
+            self.df["dummyvisit%s" % i] = i
+
+        new_cols = ["visit"] + new_cols
+
+        new_df = pd.DataFrame(columns=new_cols)
+        for cols in cols_per_line:
+            tmp_df = pd.DataFrame(self.df[cols].values, columns=new_cols)
+            new_df = pd.concat(
+                (new_df, tmp_df),
+                ignore_index=False
+            )
+
+        self.df = new_df
 
     def convert_string_values(self):
         yes_no = {"No": 0,
