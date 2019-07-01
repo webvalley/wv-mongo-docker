@@ -4,7 +4,7 @@
 
 {% block content %}
 
-<div class="page-header">
+<div class="page-header text-center">
   <h1>{% trans "Trigger new import pipeline" %}</h1>
 </div>
 
@@ -16,13 +16,18 @@
 
 <br>
 
+<br>
+
 <form action="{% url 'do-upload' %}" enctype="multipart/form-data" method="POST">
   {% csrf_token %}
   <div class="row">
-    <div class="col-lg-8">
-      {{form.as_p}}
+    <div class="col-lg-4">
+      {{form.study}}
     </div>
     <div class="col-lg-4 text-center">
+      {{form.dataset}}
+    </div>
+    <div class="col-lg-4 text-right">
       <button role="submit" href="#upload" class="btn btn-lg btn-warning" style="color: white;">
         <i class="fas fa-upload" aria-hidden="true"></i>
         {% trans "Upload" %}
