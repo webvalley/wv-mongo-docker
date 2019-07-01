@@ -45,10 +45,10 @@ def trigger(filename, study):
             "next_stage": len(functions) > i[0]+1 and functions[i[0]+1].__name__ or None,
         }
         try:
-            i[1]()
+            out = i[1]()
             if i[1].__name__ == "export_mapped_columns":
                 status["artifacts"] = {
-                    "Encoded columns association": imp.cols_export
+                    "Encoded columns association": out
                 }
         except Exception as e:
             print(e)

@@ -35,10 +35,10 @@ function ajax_start() {
         var all = e.currentTarget.response.split("\n");
         if (all.length < 2) return;
         for (k in all) {
-          if (all[k]) var current = JSON.parse(all[k]);
-          else var current = "";
-          if (current && document.parsed.indexOf(current) == -1) {
-            console.log(current);
+          curr_str = all[k]
+          if (curr_str && document.parsed.indexOf(curr_str) == -1) {
+            current = JSON.parse(curr_str)
+            console.log(current, document.parsed.indexOf(current), document.parsed);
             if ("next_stage" in current) {
               $("#"+current["next_stage"]+"_icon").attr("class", "fas fa-cog fa-spin");
             }
@@ -55,7 +55,20 @@ function ajax_start() {
               $("#pipeline_status").text("{% trans 'Complete' %}").attr("class", "green");
               $("#pipeline_status_icon").attr("class", "fas fa-check green");
             }
-            document.parsed.push(current)
+            if ("artifacts" in current) {
+              for (i in current["artifacts"]) {
+                $("#artifacts-out").prepend(
+                  '<a id="art123" class="btn btn-lg btn-success" download>' +
+                  '<i class="fas fa-cloud-download-alt" aria-hidden="true"></i> ' +
+                  i + '</a>'
+                  );
+                var blob = new Blob([current["artifacts"][i]]);
+                blob.name = i.replace(" ", "");
+                var url = window.URL.createObjectURL(blob);
+                $("#art123").attr("href", url).attr("id", "");
+              }
+            }
+            document.parsed.push(curr_str);
           }
         }
       }
@@ -88,23 +101,32 @@ $(document).ready(ajax_start);
   </div>
 </div>
 
-<div class="row">
-  <div class="col-lg-3"><img src="{% static 'img/spreadsheet.png' %}" style="max-width:100%;"></div>
-  <div class="col-lg-9">
-    <br><br>
-    {% for i in separation.0 %}
-    <i id="{{ i.0 }}_icon" class="fas fa-pause-circle orange" aria-hidden="true"></i>&nbsp; {{i.1}}<br>
-    {% endfor %}
-  </div>
-</div>
-<div class="row">
-  <div class="col-lg-3"><img src="{% static 'img/scopettina.png' %}" style="max-width:80%;"></div>
-  <div class="col-lg-9">
-    <br>
-    {% for i in separation.1 %}
-    <i id="{{ i.0 }}_icon" class="fas fa-pause-circle orange" aria-hidden="true"></i>&nbsp; {{i.1}}<br>
-    {% endfor %}
-  </div>
-</div>
 
+<div class="row"><div class="col-lg-8">
+  <div class="row">
+    <div class="col-lg-3"><img src="{% static 'img/spreadsheet.png' %}" style="max-width:100%;"></div>
+    <div class="col-lg-9">
+      <br><br>
+      {% for i in separation.0 %}
+      <i id="{{ i.0 }}_icon" class="fas fa-pause-circle orange" aria-hidden="true"></i>&nbsp; {{i.1}}<br>
+      {% endfor %}
+    </div>
+  </div>
+  <div class="row">
+    <div class="col-lg-3"><img src="{% static 'img/scopettina.png' %}" style="max-width:80%;"></div>
+    <div class="col-lg-9">
+      <br>
+      {% for i in separation.1 %}
+      <i id="{{ i.0 }}_icon" class="fas fa-pause-circle orange" aria-hidden="true"></i>&nbsp; {{i.1}}<br>
+      {% endfor %}
+    </div>
+  </div>
+</div><div class="col-lg-4">
+  <h2><span class="badge badge-warning">
+    <i class="fas fa-folder-open" aria-hidden="true"></i>
+    {% trans "Artifacts" %}
+  </span></h2>
+  <br>
+  <div id="artifacts-out"></div>
+</div></div>
 {% endblock %}
