@@ -11,6 +11,7 @@ import os
 import re
 from sklearn import preprocessing
 from datetime import datetime
+from collections import defaultdict
 
 
 class PLICImporterError(Exception):
@@ -70,53 +71,32 @@ class PLICImporter:
         mv_cols = [x for x in self.df.columns if x.endswith(tuple(suffixes))]
         perdurant_cols = [x for x in self.df.columns if x not in mv_cols]
 
-        new_cols = set()
+        single = defaultdict(list)
+        new_cols = ["cod_pz"]
 
-        for col in mv_cols:
-            for s in suffixes:
-                col = col.replace(s, "")
-            col.replace("__", "_")
-            if col.endswith("_"):
-                col = col[:-1]
-            new_cols.add(col)
-
-        for col in perdurant_cols:
-            new_cols.add(col)
-
-        new_cols.add("cod_pz")
-
-        fields_per_visit = set()
-
-        for col in mv_cols:
-            for s in suffixes:
-                col = col.replace(s, re.sub("\d", "%s", s))
-            fields_per_visit.add(col)
-
-        single = dict()
-
-        for col in mv_cols:
-            _col = col
-            for s in suffixes:
-                col = col.replace(s, "")
-            col.replace("__", "_")
-            if col.endswith("_"):
-                col = col[:-1]
-            single[_col] = col
+        for col in self.df.columns.values:
+            if col in perdurant_cols:
+                new_cols.append(col)
+            else:
+                old_col = col
+                for s in suffixes:
+                    col = col.replace(s, "")
+                col.replace("__", "_")
+                if col.endswith("_"):
+                    col = col[:-1]
+                new_cols.append(col)
+                single[col].append(old_col)
 
         new_data = []
 
         for paz in self.df.index.values:
                 obj = self.df.loc[paz]
-                for visit in range(1, 5):
-                    this = {"cod_pz": paz}
-                    for old_col in fields_per_visit:
-                        try:
-                            this[single[old_col % visit]] = obj[old_col % visit]
-                        except KeyError:
-                            pass
-                    for pd_col in perdurant_cols:
-                        this[pd_col] = obj[pd_col]
-                    new_data.append(this)
+                new_df_row = {}
+                for col in new_cols:
+                    if not col in single:
+                        new_df_row[col] = obj[col]
+                    else:
+                        pass # Nu caz, aspetta che CIC Valerio si inventi qualcosa
 
         self.df = pd.DataFrame(new_data, columns=new_cols).fillna(self.NAN_VALUE)
 
