@@ -1,6 +1,6 @@
 # Copyright (c) 2019 Marco Marinello <marco.marinello@school.rainerum.it>
 
-from .utils import Plic_importer
+from .utils import PLICImporter
 import json
 
 
@@ -8,10 +8,12 @@ separation = [
     [['excel_to_pandas_df', "Parse uploaded file"]],
     [
         ['drop_empty_cols', "Drop empty columns"],
+        ['identify_vars_category', "Map columns with their own cateogry"],
         ['visit_cols_to_rows', "Move different visits to one row each"],
+        ['drop_date_cols', "Drop columns with dates"],
         ['convert_string_values', "Convert string to numbers"],
         ['export_mapped_columns', "Export encoded columns"],
-        ['drop_useless_columns', "Remove unuseful columns for the AI"],
+        ['drop_useless_columns', "Remove useless columns for the AI"],
         ['fix_useful_string_columns', "Fix known problems with some columns"],
         ['translate_cols', "Translate column labels into English"]
     ]
@@ -23,11 +25,13 @@ def frontend_msg(value):
 
 
 def trigger(filename, study):
-    imp = Plic_importer(filename)
+    imp = PLICImporter(filename)
     functions = [
         imp.excel_to_pandas_df,
         imp.drop_empty_cols,
+        imp.identify_vars_category,
         imp.visit_cols_to_rows,
+        imp.drop_date_cols,
         imp.convert_string_values,
         imp.export_mapped_columns,
         imp.drop_useless_columns,
@@ -59,6 +63,8 @@ def trigger(filename, study):
             })
             raise StopIteration
         yield "\n" + json.dumps(status)
+
+    imp.df.to_csv("/tmp/Valerio.csv")
 
     yield "\n" + json.dumps({
         "status": "complete"

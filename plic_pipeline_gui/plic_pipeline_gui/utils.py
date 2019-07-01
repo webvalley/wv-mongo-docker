@@ -13,13 +13,17 @@ from sklearn import preprocessing
 from datetime import datetime
 
 
-class Plic_import_error(Exception):
+class PLICImporterError(Exception):
     pass
 
-class Plic_importer:
-    nan_value = -1
-    sep = ","
-    index_col = 0
+
+class PLICImporter:
+    NAN_VALUE = -1
+    SEP = ","
+    INDEX_COL = 0
+    TRANSFILE = "cols_trans.xlsx"
+    COLS_METADATA_FILE = "cols_metadata.xlsx"
+
 
     def __init__(self, file_name):
         self.file_name = file_name
@@ -30,10 +34,20 @@ class Plic_importer:
         return self.df
 
     def excel_to_pandas_df(self):
-        self.df = pd.read_excel(self.file_name, index_col=self.index_col).fillna(self.nan_value)
+        self.df = pd.read_excel(self.file_name, index_col=self.INDEX_COL).fillna(self.NAN_VALUE)
 
     def csv_to_pandas_df(self):
-        self.df = pd.read_csv(self.file_name, index_col=self.index_col, sep=self.sep).fillna(self.nan_value)
+        self.df = pd.read_csv(self.file_name, index_col=self.INDEX_COL, sep=self.SEP).fillna(self.NAN_VALUE)
+
+    def identify_vars_category(self):
+        meta = pd.read_excel(self.COLS_METADATA_FILE)
+        trans = {
+            a["var"]: a["enc"] for z, a in meta.iterrows()
+        }
+        new_cols_labels = [
+            trans[a] for a in self.df.columns.values
+        ]
+        self.df.columns = new_cols_labels
 
     def drop_empty_cols(self):
         cols_to_drop = []
@@ -44,6 +58,9 @@ class Plic_importer:
                 cols_to_drop.append(i)
 
         self.df.drop(cols_to_drop, axis=1, inplace=True)
+
+    def drop_date_cols(self):
+        self.df.drop([x for x in self.df.columns.values if "data" in x], axis=1, inplace=True)
 
     def visit_cols_to_rows(self):
         suffixes = ["_%s" % a for a in range(0,10)] + \
@@ -101,7 +118,7 @@ class Plic_importer:
                         this[pd_col] = obj[pd_col]
                     new_data.append(this)
 
-        self.df = pd.DataFrame(new_data, columns=new_cols).fillna(self.nan_value)
+        self.df = pd.DataFrame(new_data, columns=new_cols).fillna(self.NAN_VALUE)
 
     def convert_string_values(self):
         yes_no = {"No": 0,
@@ -131,7 +148,7 @@ class Plic_importer:
                     self.df[col] = self.df[col].map(col_map_dict)
                     self.map_dict[col] = col_map_dict
 
-        self.df = self.df.fillna(self.nan_value)
+        self.df = self.df.fillna(self.NAN_VALUE)
 
 
     def export_mapped_columns(self):
@@ -214,7 +231,7 @@ class Plic_importer:
                 self.df[col] = new_value_list
 
     def translate_cols(self):
-        transfile = pd.read_excel("cols_trans.xlsx", index_col=0)
+        transfile = pd.read_excel(self.TRANSFILE, index_col=0)
         tr_dict = {}
         for idx, row in transfile.iterrows():
             tr_dict[row.IT] = row.EN
@@ -223,7 +240,10 @@ class Plic_importer:
         for col in self.df.columns.values:
             col = col.lower().replace("_ns", "")
             if col in tr_dict:
-                new_cols_names.append(tr_dict[col])
+                new_cols_names.append(tr_dict[col.split(":")[1]])
             else:
                 new_cols_names.append(col)
         self.df.columns = new_cols_names
+
+    def place_nan_objects(self):
+        self.df.select_dtypes(include="object_").apply(lambda s: s[0] == -1 and "None" or s)
