@@ -149,7 +149,7 @@ class PLICImporter:
                 if all([x in yes_no.keys() for x in unique_list]):
                     self.df[col] = self.df[col].map(yes_no)
 
-                elif "data" not in col and len(unique_list) < 8:
+                elif len(unique_list) < 8 and col != "visit":
                     enc_value_list = le.fit_transform(unique_list)
                     col_map_dict = dict(zip(unique_list, [x+2 for x in enc_value_list]))
                     self.df[col] = self.df[col].map(col_map_dict)
@@ -175,7 +175,7 @@ class PLICImporter:
                         "nefropatie_tipo", "diagnosi_nuove_rivalutazioni",
                         "addome_tipo", "neoplasia1_tipo", "soffi_tipo",
                         "HT_indicazione1",  "epatopatie_tipo", "_ei", "alimentazione",
-                        "ei1", "ei2", "id_esame", "dietetic"]
+                        "ei1", "ei2", "id_esame", "dietetic", "nascita"]
         bad_col_list = []
 
         for c in self.df.columns.values:
@@ -246,11 +246,12 @@ class PLICImporter:
         new_cols_names = []
         for col in self.df.columns.values:
             col = col.lower().replace("_ns", "")
-            if col in tr_dict:
-                new_cols_names.append(tr_dict[col.split(":")[1]])
+            try:
+                col, target = col.split(":")
+            except:
+                target = col
+            if target in tr_dict:
+                new_cols_names.append("%s:%s" % (col, tr_dict[target]))
             else:
                 new_cols_names.append(col)
         self.df.columns = new_cols_names
-
-    def place_nan_objects(self):
-        self.df.select_dtypes(include="object_").apply(lambda s: s[0] == -1 and "None" or s)

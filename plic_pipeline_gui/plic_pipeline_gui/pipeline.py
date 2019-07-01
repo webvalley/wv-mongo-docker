@@ -9,8 +9,8 @@ separation = [
     [
         ['drop_empty_cols', "Drop empty columns"],
         ['identify_vars_category', "Map columns with their own cateogry"],
-        ['visit_cols_to_rows', "Move different visits to one row each"],
         ['drop_date_cols', "Drop columns with dates"],
+        ['visit_cols_to_rows', "Move different visits to one row each"],
         ['convert_string_values', "Convert string to numbers"],
         ['export_mapped_columns', "Export encoded columns"],
         ['drop_useless_columns', "Remove useless columns for the AI"],
@@ -30,8 +30,8 @@ def trigger(filename, study):
         imp.excel_to_pandas_df,
         imp.drop_empty_cols,
         imp.identify_vars_category,
-        imp.visit_cols_to_rows,
         imp.drop_date_cols,
+        imp.visit_cols_to_rows,
         imp.convert_string_values,
         imp.export_mapped_columns,
         imp.drop_useless_columns,
@@ -63,11 +63,10 @@ def trigger(filename, study):
                 "status": "error",
                 "error": "An error (%s) occurred while running %s" % (e, i[1].__name__)
             })
-            print(list(imp.df.columns.values))
-            imp.df.to_csv("/tmp/Valerio.csv")
             raise StopIteration
         yield "\n" + json.dumps(status)
 
+    imp.df.to_csv("/tmp/plic_milano_clean.csv")
 
     yield "\n" + json.dumps({
         "status": "complete"
