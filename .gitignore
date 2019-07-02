@@ -3,4 +3,5 @@
 db.sqlite3
 local_settings.py
 *.xlsx
+*.csv
 *.log.txt
