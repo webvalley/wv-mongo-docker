@@ -164,9 +164,9 @@ class PLICImporter:
         for i in self.map_dict:
             for x in self.map_dict[i]:
                 vals_conv.append([i, x, self.map_dict[i][x]])
-        return pd.DataFrame(
+        return {"Encoded columns association": ["assoc_%s.csv" % self.study, pd.DataFrame(
                 vals_conv, columns=["column", "value", "replacing"]
-            ).to_csv()
+            ).to_csv()]}
 
 
     def drop_useless_columns(self):
@@ -263,3 +263,8 @@ class PLICImporter:
             else:
                 new_cols_names.append(col)
         self.df.columns = new_cols_names
+
+    def export_artifacts(self):
+        return {
+            "CSV cleaned dataset": ["%s_cleaned.csv" % self.study, self.df.to_csv()]
+        }

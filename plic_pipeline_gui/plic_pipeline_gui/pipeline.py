@@ -16,7 +16,8 @@ separation = [
         ['export_mapped_columns', "Export encoded columns"],
         ['drop_useless_columns', "Remove useless columns for the AI"],
         ['fix_useful_string_columns', "Fix known problems with some columns"],
-        ['translate_cols', "Translate column labels into English"]
+        ['translate_cols', "Translate column labels into English"],
+        ['export_artifacts', "Export the cleaned dataframe"],
     ],
     [
         ["push_to_mongo", "Pushing data into DataBase"]
@@ -30,6 +31,8 @@ def frontend_msg(value):
 
 def trigger(filename, study):
     imp = PLICImporter(filename)
+    imp.study = study
+
     functions = [
         imp.excel_to_pandas_df,
         imp.drop_empty_cols,
@@ -41,6 +44,7 @@ def trigger(filename, study):
         imp.drop_useless_columns,
         imp.fix_useful_string_columns,
         imp.translate_cols,
+        imp.export_artifacts,
     ]
 
     yield frontend_msg({
@@ -54,15 +58,11 @@ def trigger(filename, study):
         }
         try:
             out = i[1]()
-            with open(i[1].__name__+".log.txt", "w") as fh:
-                fh.write(str(list(imp.df.columns.values)))
-            if i[1].__name__ == "export_mapped_columns":
-                status["artifacts"] = {
-                    "Encoded columns association": out
-                }
+            if out:
+                status["artifacts"] = out
         except Exception as e:
             print(e)
-            yield "\n" + json.dumps({
+            yield frontend_msg({
                 "current_stage": i[1].__name__,
                 "status": "error",
                 "error": "An error (%s) occurred while running %s" % (e, i[1].__name__)
@@ -70,15 +70,13 @@ def trigger(filename, study):
             raise StopIteration
         yield frontend_msg(status)
 
-    imp.df.to_csv("/tmp/plic_milano_clean.csv")
     yield frontend_msg({
         "next_stage":"push_to_mongo"
     })
-    push_df(imp.df, study)
-    yield frontend_msg({
-        "current_stage":"push_to_mongo"
-    })
 
-    yield "\n" + json.dumps({
+    push_df(imp.df, study)
+
+    yield frontend_msg({
+        "current_stage":"push_to_mongo",
         "status": "complete"
     })
