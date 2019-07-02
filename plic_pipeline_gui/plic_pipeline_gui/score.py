@@ -96,6 +96,8 @@ def score_to_collection(coll_name):
         tot_chol = i["lab:total_cholesterol"]*0.02586
         sbp = i["esa_obi:sbp"]
         smoking = i["ana_fis:smoking"] == "no" and 0 or 1
+        if smoking == 2:
+            smoking = 1
         score = score_algorithm(age, tot_chol, sbp, gender, smoking)*100
         client.plic[coll_name].update_one({"_id": i["_id"]}, {"$set": {"score": score}})
         print(i["patient_id"], score)
