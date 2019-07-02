@@ -19,6 +19,19 @@
       <th></th>
     </tr>
   </thead>
+  <tbody>
+    {% for c in collections %}
+    <tr>
+      <td>{{c.0|title}}</td>
+      <td>{{c.1}}</td>
+      <td>
+        <a href="#" class="btn btn-lg btn-success">
+          <i class="fas fa-arrow-right"></i>
+        </a>
+      </td>
+    </tr>
+    {% endfor %}
+  </tbody>
 </table>
 
 <br>

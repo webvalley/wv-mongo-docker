@@ -16,3 +16,17 @@ def push_df(df, coll):
         db[coll].insert_one(dict(row))
     client.close()
 
+
+def get_collections():
+    client = pymongo.MongoClient(
+        settings.MONGO_IP,
+        27017,
+        username=settings.MONGO_USER,
+        password=settings.MONGO_PW
+    )
+    cls = [
+        [x, client.plic[x].count()]
+        for x in client.plic.list_collection_names() if x != "delete_me"
+    ]
+    client.close()
+    return cls

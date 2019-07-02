@@ -6,12 +6,17 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 from django.shortcuts import render
 from shutil import copyfile
-from . import forms, pipeline
+from . import forms, pipeline, monplic
 
 
 class IndexView(TemplateView):
     template_name = "index.html"
     extra_context = {"form": forms.DatasetImportForm}
+
+    def get_context_data(self, **kw):
+        ctx = super().get_context_data(**kw)
+        ctx["collections"] = monplic.get_collections()
+        return ctx
 
 
 class preUpload(FormView):
