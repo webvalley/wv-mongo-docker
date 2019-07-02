@@ -42,10 +42,30 @@ class PLICImporter:
         self.df = pd.read_csv(self.file_name, index_col=self.INDEX_COL, sep=self.SEP).fillna(self.NAN_VALUE)
 
     def identify_vars_category(self):
-        meta = pd.read_excel(self.COLS_METADATA_FILE)
-        trans = {
-            a["var"]: a["enc"] for z, a in meta.iterrows()
+        trans = {}
+        tag_cols = [
+            'ANAGRAFICA',
+            'ANAMNESI_FISIOLOGICA',
+            'ANAMNESI_PATOLOGICA',
+            'ANAMNESI_FARMACOLOGICA',
+            'ESAME_OBIETTIVO',
+            'LABORATORIO',
+            'ULTRASOUND_TSA',
+            'ENDOTELIO',
+            'LUNAR_BODY_SCAN',
+            'ECODOPPLER_ARTI'
+        ]
+        categories_map = {
+            cat: "_".join([x[:3] for x in cat.split("_")])
+            for cat in tag_cols
         }
+        TAG = "ANAGRAFICA"
+        for col in self.df.columns.values:
+            if col in tag_cols:
+                TAG = col
+            trans[col] = "%s:%s" % (categories_map[TAG], col)
+
+        # Keep
         new_cols_labels = [
             trans[a] for a in self.df.columns.values
         ]
