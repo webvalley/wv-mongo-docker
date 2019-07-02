@@ -286,6 +286,10 @@ class PLICImporter:
                 new_cols_names.append("%s:%s" % (col, target))
         self.df.columns = new_cols_names
 
+    def yn_to_int(self):
+        for col in [x for x in self.df.columns.values if "_yn" in x]:
+            self.df[col] = self.df[col].astype("int")
+
     def export_artifacts(self):
         return {
             "CSV cleaned dataset": ["%s_cleaned.csv" % self.study, self.df.to_csv()]

@@ -17,6 +17,7 @@ separation = [
         ['drop_useless_columns', "Remove useless columns for the AI"],
         ['fix_useful_string_columns', "Fix known problems with some columns"],
         ['translate_cols', "Translate column labels into English"],
+        ['yn_to_int', "Codify booleans as integers"],
         ['export_artifacts', "Export the cleaned dataframe"],
     ],
     [
@@ -44,6 +45,7 @@ def trigger(filename, study):
         imp.drop_useless_columns,
         imp.fix_useful_string_columns,
         imp.translate_cols,
+        imp.yn_to_int,
         imp.export_artifacts,
     ]
 
