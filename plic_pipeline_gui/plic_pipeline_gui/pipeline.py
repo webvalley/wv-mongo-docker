@@ -2,6 +2,7 @@
 
 from .utils import PLICImporter
 from .monplic import push_df
+import os
 import json
 
 
@@ -82,3 +83,5 @@ def trigger(filename, study):
         "current_stage":"push_to_mongo",
         "status": "complete"
     })
+
+    os.remove(filename)
