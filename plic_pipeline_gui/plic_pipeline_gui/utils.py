@@ -172,7 +172,8 @@ class PLICImporter:
                 if all([x in yes_no.keys() for x in unique_list]):
                     self.df[col] = self.df[col].map(yes_no)
 
-                elif len(unique_list) < 8 and col != "visit":
+                elif len(unique_list) < 8 and col != "visit" and \
+                    "_atc" not in col.lower() and "atc_" not in col.lower():
                     enc_value_list = le.fit_transform(unique_list)
                     col_map_dict = dict(zip(unique_list, [x+2 for x in enc_value_list]))
                     self.df[col] = self.df[col].map(col_map_dict)
