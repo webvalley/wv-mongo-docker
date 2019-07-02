@@ -121,6 +121,15 @@ $(document).ready(ajax_start);
       {% endfor %}
     </div>
   </div>
+  <div class="row">
+    <div class="col-lg-3"><img src="{% static 'img/mongo.png' %}" style="max-width:80%;"></div>
+    <div class="col-lg-9">
+      <br>
+      {% for i in separation.2 %}
+      <i id="{{ i.0 }}_icon" class="fas fa-pause-circle orange" aria-hidden="true"></i>&nbsp; {{i.1}}<br>
+      {% endfor %}
+    </div>
+  </div>
 </div><div class="col-lg-4">
   <h2><span class="badge badge-warning">
     <i class="fas fa-folder-open" aria-hidden="true"></i>
