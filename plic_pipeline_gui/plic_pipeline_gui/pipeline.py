@@ -1,6 +1,7 @@
 # Copyright (c) 2019 Marco Marinello <marco.marinello@school.rainerum.it>
 
 from .utils import PLICImporter
+from .monplic import push_df
 import json
 
 
@@ -16,6 +17,9 @@ separation = [
         ['drop_useless_columns', "Remove useless columns for the AI"],
         ['fix_useful_string_columns', "Fix known problems with some columns"],
         ['translate_cols', "Translate column labels into English"]
+    ],
+    [
+        ["push_to_mongo", "Pushing data into DataBase"]
     ]
 ]
 
@@ -64,9 +68,16 @@ def trigger(filename, study):
                 "error": "An error (%s) occurred while running %s" % (e, i[1].__name__)
             })
             raise StopIteration
-        yield "\n" + json.dumps(status)
+        yield frontend_msg(status)
 
     imp.df.to_csv("/tmp/plic_milano_clean.csv")
+    yield frontend_msg({
+        "next_stage":"push_to_mongo"
+    })
+    push_df(imp.df, study)
+    yield frontend_msg({
+        "current_stage":"push_to_mongo"
+    })
 
     yield "\n" + json.dumps({
         "status": "complete"
