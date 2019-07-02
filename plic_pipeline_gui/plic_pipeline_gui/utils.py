@@ -74,10 +74,11 @@ class PLICImporter:
 
         single = defaultdict(list)
         new_cols = [] #["cod_pz", "visit"]
-
+        print(len(self.df.columns.values))
         for col in self.df.columns.values:
             if col in perdurant_cols:
-                new_cols.append(col)
+                if col not in new_cols:
+                    new_cols.append(col)
             else:
                 old_col = col
                 for s in suffixes:
@@ -245,13 +246,20 @@ class PLICImporter:
         self._t = tr_dict
         new_cols_names = []
         for col in self.df.columns.values:
-            col = col.lower().replace("_ns", "")
+            ns_in_col = False
+            col = col.lower()
+            if "_ns" in col:
+                col = col.replace("_ns", "")
+                ns_in_col = True
             try:
                 col, target = col.split(":")
             except:
                 target = col
             if target in tr_dict:
-                new_cols_names.append("%s:%s" % (col, tr_dict[target]))
+                eng_col = tr_dict[target]
+                if ns_in_col and not eng_col.endswith("_yn"):
+                    eng_col = eng_col + "_yn"
+                new_cols_names.append("%s:%s" % (col, eng_col))
             else:
                 new_cols_names.append(col)
         self.df.columns = new_cols_names
