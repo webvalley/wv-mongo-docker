@@ -20,7 +20,6 @@ class preUpload(FormView):
     extra_context = {"form": forms.DatasetImportForm}
 
     def form_valid(self, form):
-        print(type(form.cleaned_data["dataset"]))
         # The original tempfile is being deleted when the request finishes
         new_path = "/tmp/keep_%s" % form.cleaned_data["dataset"].temporary_file_path().split("/")[-1]
         copyfile(
@@ -40,7 +39,10 @@ class preUpload(FormView):
 
 class UploadAjax(View):
     def post(self, request):
-        print(request.POST)
         return StreamingHttpResponse(
-            pipeline.trigger(request.POST["filename"], request.POST["study"])
+            pipeline.trigger(
+                request.POST["filename"],
+                request.POST["study"],
+                request.POST["push"] == "true" and True or False
+            )
         )

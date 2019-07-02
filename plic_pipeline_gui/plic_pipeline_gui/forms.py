@@ -9,3 +9,9 @@ class DatasetImportForm(forms.Form):
     ])
 
     dataset = forms.FileField()
+
+    mongo_push = forms.BooleanField(
+        label="Push to Mongo",
+        initial=True,
+        required=False
+    )

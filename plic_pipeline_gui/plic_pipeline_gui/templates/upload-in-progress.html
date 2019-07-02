@@ -29,7 +29,9 @@ function ajax_start() {
     url: "{% url 'do-ajax-upload' %}",
     data: {"csrfmiddlewaretoken": "{{ csrf_token }}",
            "filename": "{{ fpath }}",
-           "study": "{{ f.study }}"},
+           "study": "{{ f.study }}",
+           "push": "{{ f.mongo_push|yesno:'true,false' }}"
+         },
     xhrFields: {
       onprogress: function(e) {
         var all = e.currentTarget.response.split("\n");
@@ -67,6 +69,9 @@ function ajax_start() {
                 var url = window.URL.createObjectURL(blob);
                 $("#art123").attr("href", url).attr("id", "");
               }
+            }
+            if ("skipped" in current) {
+              $("#"+current["current_stage"]+"_icon").attr("class", "fas fa-stop-circle red");
             }
             document.parsed.push(curr_str);
           }

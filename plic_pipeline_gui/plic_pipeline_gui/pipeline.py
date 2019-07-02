@@ -31,7 +31,7 @@ def frontend_msg(value):
     return "\n%s" % (json.dumps(value))
 
 
-def trigger(filename, study):
+def trigger(filename, study, push=True):
     imp = PLICImporter(filename)
     imp.study = study
 
@@ -77,11 +77,17 @@ def trigger(filename, study):
         "next_stage":"push_to_mongo"
     })
 
-    push_df(imp.df, study)
+    if push:
+        push_df(imp.df, study)
 
-    yield frontend_msg({
+    final = {
         "current_stage":"push_to_mongo",
         "status": "complete"
-    })
+    }
+
+    if not push:
+        final["skipped"] = "push_to_mongo"
+
+    yield frontend_msg(final)
 
     os.remove(filename)
