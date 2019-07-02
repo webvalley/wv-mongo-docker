@@ -283,7 +283,7 @@ class PLICImporter:
                     eng_col = eng_col + "_yn"
                 new_cols_names.append("%s:%s" % (col, eng_col))
             else:
-                new_cols_names.append(col)
+                new_cols_names.append("%s:%s" % (col, target))
         self.df.columns = new_cols_names
 
     def export_artifacts(self):
