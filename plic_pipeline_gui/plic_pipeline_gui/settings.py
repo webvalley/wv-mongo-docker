@@ -120,3 +120,9 @@ STATIC_URL = '/static/'
 FILE_UPLOAD_HANDLERS = [
     'django.core.files.uploadhandler.TemporaryFileUploadHandler',
 ]
+
+
+# Mongo credentials
+MONGO_IP = '172.18.0.3'
+MONGO_USER = "root"
+MONGO_PW = "WV_19_Mongo"
