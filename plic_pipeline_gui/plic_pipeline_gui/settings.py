@@ -126,3 +126,8 @@ FILE_UPLOAD_HANDLERS = [
 MONGO_IP = '172.18.0.3'
 MONGO_USER = "root"
 MONGO_PW = "WV_19_Mongo"
+
+try:
+    from .local_settings import *
+except ImportError:
+    pass
