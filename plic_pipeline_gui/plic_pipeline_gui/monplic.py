@@ -4,26 +4,26 @@ import pymongo
 from django.conf import settings
 
 
-def push_df(df, coll):
-    client = pymongo.MongoClient(
+def get_client():
+    return pymongo.MongoClient(
         settings.MONGO_IP,
         27017,
         username=settings.MONGO_USER,
         password=settings.MONGO_PW
     )
+
+def push_df(df, coll):
+    client = get_client()
     db = client.plic
     for idx, row in df.iterrows():
-        db[coll].insert_one(dict(row))
+        a = dict(row)
+        a["patient_id"] = idx
+        db[coll].insert_one(a)
     client.close()
 
 
 def get_collections():
-    client = pymongo.MongoClient(
-        settings.MONGO_IP,
-        27017,
-        username=settings.MONGO_USER,
-        password=settings.MONGO_PW
-    )
+    client = get_client()
     cls = [
         [x, client.plic[x].count()]
         for x in client.plic.list_collection_names() if x != "delete_me"
