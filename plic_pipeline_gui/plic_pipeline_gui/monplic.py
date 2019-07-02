@@ -4,12 +4,12 @@ import pymongo
 
 
 def push_df(df, coll):
-    client = MongoClient(
-        '127.0.0.1',
+    client = pymongo.MongoClient(
+        '172.18.0.3',
         27017,
         username="root",
-        password="testpw"
+        password="WV_19_Mongo"
     )
     db = client.plic
     for idx, row in df.iterrows():
-     db[coll].insert_one(dict(row))
+        db[coll].insert_one(dict(row))
