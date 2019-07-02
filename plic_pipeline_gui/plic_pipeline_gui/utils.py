@@ -85,6 +85,8 @@ class PLICImporter:
         self.df.drop([x for x in self.df.columns.values if "data" in x], axis=1, inplace=True)
 
     def visit_cols_to_rows(self):
+        if self.study == "chiesa":
+            return
         suffixes = ["_%s" % a for a in range(0,10)] + \
            ["_%s_a" % a for a in range(0,10)] + \
            ["_%s_recod" % a for a in range(0,10)]
