@@ -2,6 +2,24 @@
 
 {% block title %}{{name|title}} {% trans "details" %}{% endblock %}
 
+{% block extrahead %}
+<link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-1.2.0.min.css" type="text/css" />
+<link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-widgets-1.2.0.min.css" type="text/css" />
+<link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-tables-1.2.0.min.css" type="text/css" />
+
+<script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-1.2.0.min.js"></script>
+<script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-widgets-1.2.0.min.js"></script>
+<script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-tables-1.2.0.min.js"></script>
+<script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-gl-1.2.0.min.js"></script>
+<script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-api-1.2.0.min.js"></script>
+<script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-api-1.2.0.min.js"></script>
+
+{% for s in scripts %}
+{{ s|safe }}
+{% endfor %}
+
+{% endblock %}
+
 {% block content %}
 
 <div class="page-header">
@@ -12,5 +30,9 @@
     <i class="fas fa-info-circle"></i> {{name|title}}
   </h1>
 </div>
+
+{% for d in divs %}
+{{ d|safe }}
+{% endfor %}
 
 {% endblock %}

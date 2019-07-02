@@ -6,7 +6,8 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 from django.shortcuts import render
 from shutil import copyfile
-from . import forms, pipeline, monplic
+from bokeh import embed
+from . import forms, pipeline, monplic, somenzi_cazzo
 
 
 class IndexView(TemplateView):
@@ -55,3 +56,16 @@ class UploadAjax(View):
 
 class CollectionDetailView(TemplateView):
     template_name = "collection.html"
+
+    def get_context_data(self, **kw):
+        ctx = super().get_context_data(**kw)
+        client = monplic.get_client()
+        patients = [x for x in client.plic["milano"].find()]
+        divs, scripts = [], []
+        for plot in somenzi_cazzo.collection_graphs(patients):
+            script, div = embed.components(plot)
+            divs.append(div)
+            scripts.append(script)
+        ctx["scripts"] = scripts
+        ctx["divs"] = divs
+        return ctx
