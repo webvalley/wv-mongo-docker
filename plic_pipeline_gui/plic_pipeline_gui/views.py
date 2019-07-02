@@ -51,3 +51,7 @@ class UploadAjax(View):
                 request.POST["push"] == "true" and True or False
             )
         )
+
+
+class CollectionDetailView(TemplateView):
+    template_name = "collection.html"

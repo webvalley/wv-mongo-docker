@@ -21,4 +21,5 @@ urlpatterns = [
     path("", views.IndexView.as_view(), name="index"),
     path("upload", views.preUpload.as_view(), name="do-upload"),
     path("upload/ajax", views.UploadAjax.as_view(), name="do-ajax-upload"),
+    path("collection/<str:name>", views.CollectionDetailView.as_view(), name="collection"),
 ]

@@ -1,0 +1,16 @@
+{% extends "base.html" %}{% load i18n static %}
+
+{% block title %}{{name|title}} {% trans "details" %}{% endblock %}
+
+{% block content %}
+
+<div class="page-header">
+  <h1>
+    <a href="{% url 'index' %}" class="btn btn-lg btn-primary">
+      <i class="fas fa-arrow-left"></i>
+    </a>
+    <i class="fas fa-info-circle"></i> {{name|title}}
+  </h1>
+</div>
+
+{% endblock %}
