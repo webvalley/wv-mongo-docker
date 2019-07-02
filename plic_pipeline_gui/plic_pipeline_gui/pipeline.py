@@ -8,8 +8,8 @@ import json
 separation = [
     [['excel_to_pandas_df', "Parse uploaded file"]],
     [
-        ['drop_empty_cols', "Drop empty columns"],
         ['identify_vars_category', "Map columns with their own cateogry"],
+        ['drop_empty_cols', "Drop empty columns"],
         ['drop_date_cols', "Drop columns with dates"],
         ['visit_cols_to_rows', "Move different visits to one row each"],
         ['convert_string_values', "Convert string to numbers"],
@@ -35,8 +35,8 @@ def trigger(filename, study):
 
     functions = [
         imp.excel_to_pandas_df,
-        imp.drop_empty_cols,
         imp.identify_vars_category,
+        imp.drop_empty_cols,
         imp.drop_date_cols,
         imp.visit_cols_to_rows,
         imp.convert_string_values,
