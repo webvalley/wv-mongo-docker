@@ -37,8 +37,7 @@ def curves_callback(dataset, data_element):
 
 
 def anonymize(root, root_out):
-    root = "C:/Users/julix/Documents/temp/chierici eco"
-    root_out = "C:/Users/julix/Documents/temp/chierici eco/anon"
+
     # image expected dimensions
     rows = 576
     cols = 640
@@ -87,4 +86,8 @@ def anonymize(root, root_out):
 
 
 if __name__ == "__main__":
-    anonymize()
+    anonymize("C:/Users/julix/Documents/temp/chierici eco/dcm",
+              "C:/Users/julix/Documents/temp/chierici eco/anon")
+
+# TODO get a demo selection of images to use, and prepare them by blurring sensitive data/inserting false names
+# TODO check difference between Chiesa/Milano/Val di Non images, decide accordingly
