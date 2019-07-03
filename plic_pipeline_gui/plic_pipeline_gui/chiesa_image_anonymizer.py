@@ -48,7 +48,7 @@ def anonymize(root, root_out=False):
     if not root_out:
         root_out = root
 
-    for file in glob.glob(os.path.join(root, "*.dcm")):
+    for file in [x for x in os.listdir(root) if x.endswith(".dcm")]:
         t2tag = 'PatientBirthDate'
         fn = os.path.join(root, file)
         ds = pydicom.read_file(fn)
@@ -82,11 +82,15 @@ def anonymize(root, root_out=False):
             pdata = metacrop2(ds)
             ds.Rows, ds.Columns, _ = pdata.shape
             ds.PixelData = pdata.tobytes()
-
+            new_raw_path = os.path.join(root, str(patientID) + "_raw")
+            os.makedirs(new_raw_path, exist_ok=True)
+            os.rename(os.path.join(root, file), os.path.join(new_raw_path, file))
             out_dir = os.path.join(root_out, str(patientID) + "_anonymized")
             dicom_name = (str(patientID))
             os.makedirs(out_dir, exist_ok=True)
-            out_dicom = os.path.join(out_dir, dicom_name+f"_{str(len(os.listdir(out_dir))).zfill(4)}"+".dcm")
+            out_dicom = \
+                os.path.join(out_dir, dicom_name + \
+                             f"_{str(len([x for x in os.listdir(out_dir) if x.endswith('.dcm')])).zfill(4)}" + ".dcm")
 
             # write DICOM Standard compliant file
 
@@ -95,7 +99,7 @@ def anonymize(root, root_out=False):
 
 
 if __name__ == "__main__":
-    anonymize("C:/Users/julix/Documents/temp/chierici eco/dcm", "C:/Users/julix/Documents/temp/chierici eco/anon")
+    anonymize("C:/Users/julix/Documents/temp/chierici eco/dcm")
 
 # TODO get a demo selection of images to use, and prepare them by blurring sensitive data/inserting false names
 # TODO check difference between Chiesa/Milano/Val di Non images, decide accordingly
