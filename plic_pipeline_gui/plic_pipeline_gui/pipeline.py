@@ -2,6 +2,7 @@
 
 from .utils import PLICImporter
 from .monplic import push_df
+from .score import score_to_collection
 import os
 import json
 
@@ -22,7 +23,8 @@ separation = [
         ['export_artifacts', "Export the cleaned dataframe"],
     ],
     [
-        ["push_to_mongo", "Pushing data into DataBase"]
+        ["push_to_mongo", "Pushing data into DataBase"],
+        ["score", "Bulk calculate score on all patients"]
     ]
 ]
 
@@ -74,19 +76,28 @@ def trigger(filename, study, push=True):
         yield frontend_msg(status)
 
     yield frontend_msg({
-        "next_stage":"push_to_mongo"
+        "next_stage": "push_to_mongo"
     })
 
     if push:
         push_df(imp.df, study)
+        yield frontend_msg({
+            "current_stage": "push_to_mongo",
+            "next_stage": "score",
+        })
+        score_to_collection(study)
+
 
     final = {
-        "current_stage":"push_to_mongo",
+        "current_stage": "score",
         "status": "complete"
     }
 
     if not push:
-        final["skipped"] = "push_to_mongo"
+        yield frontend_msg({
+            "skipped": "push_to_mongo"
+        })
+        final["skipped"] = "score"
 
     yield frontend_msg(final)
 
