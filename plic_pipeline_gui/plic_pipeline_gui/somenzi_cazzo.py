@@ -44,6 +44,25 @@ def example_graph2(patients):
     return plot
 
 
+def plot_for_each_variable(patients):
+    vars = {
+        var: [] for var in patients[0] if var != "_id" and type(patients[0][var]) in (int, float)
+    }
+    for pat in patients:
+        for var in vars:
+            vars[var].append(pat[var])
+    plots = []
+    for var in vars:
+        plot = plotting.figure(
+            title=var,
+            plot_width=400,
+            plot_height=400
+        )
+        plot.circle(list(range(len(vars[var]))), vars[var], size=10, color="navy", alpha=0.5)
+        plots.append(plot)
+    return plots
+
+
 def collection_graphs(patients):
     f = [
         example_graph1,
@@ -51,5 +70,5 @@ def collection_graphs(patients):
     ]
     plots = [
         x(patients) for x in f
-    ]
+    ] #+ plot_for_each_variable(patients)
     return plots
