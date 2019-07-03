@@ -69,7 +69,7 @@ class AxialClassifier:
 
 
 if __name__ == "__main__":
-    classifier = AxialClassifier("C:/Users/julix/Documents/temp/chierici eco/anon/WV_PROVA_3")
+    classifier = AxialClassifier("C:/Users/julix/Documents/temp/chierici eco/dcm/WV_PROVA_3_anonymized")
     classifier.import_model("NN_model/model_even_better.h5")
     classifier.img_to_array_list()
     print(classifier.classify_axis())
