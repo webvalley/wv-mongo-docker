@@ -4,6 +4,7 @@
 # Copyright (c) 2019 Marco Marinello <marco.marinello@school.rainerum.it>
 
 from bokeh import plotting, embed
+from bokeh.models import Range1d
 
 
 def example_graph1(patients):
@@ -96,5 +97,7 @@ def patient_plots(visits):
         plot.xaxis.ticker = list(range(1,len(vals[var])+1))
         plot.xgrid.visible = False
         plot.ygrid.visible = False
+        plot.toolbar.logo = None
+        plot.toolbar_location = None
         plots.append(plot)
     return plots

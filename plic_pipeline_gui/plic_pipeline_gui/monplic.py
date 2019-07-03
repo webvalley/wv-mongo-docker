@@ -12,6 +12,21 @@ def get_client():
         password=settings.MONGO_PW
     )
 
+
+def fix_chiesa(pat):
+    if pat["esa_obi:pas_sx"] and pat["esa_obi:pas_sx"] != -1:
+        pat["esa_obi:sbp"] = pat["esa_obi:pas_sx"]
+    elif pat["esa_obi:pas_dx"] and pat["esa_obi:pas_dx"] != -1:
+        pat["esa_obi:sbp"] = pat["esa_obi:pas_dx"]
+    else:
+        return None
+    if pat["ana_fis:complete_smoke_CHIESA"] == 1:
+        pat["ana_fis:smoking"] = "no"
+    else:
+        pat["ana_fis:smoking"] = "yes"
+    return pat
+
+
 def push_df(df, coll):
     client = get_client()
     db = client.plic
@@ -21,7 +36,10 @@ def push_df(df, coll):
         if "cod_pz:subject_id" in row:
             a["patient_id"] = a["cod_pz:subject_id"]
             del a["cod_pz:subject_id"]
-        db[coll].insert_one(a)
+        if coll == "chiesa":
+            a = fix_chiesa(a)
+        if a:
+            db[coll].insert_one(a)
     client.close()
 
 

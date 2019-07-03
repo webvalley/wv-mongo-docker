@@ -87,7 +87,7 @@ def score_algorithm(age, chol, SBP, sex, smoker):
     return risktot
 
 
-def score_to_collection_milano(coll_name="milano"):
+def score_to_collection(coll_name):
     client = monplic.get_client()
     coll = client.plic[coll_name].find()
     for i in coll:
@@ -97,9 +97,6 @@ def score_to_collection_milano(coll_name="milano"):
         sbp = i["esa_obi:sbp"]
         smoking = i["ana_fis:smoking"].strip() != "no" and 1 or 0
         score = score_algorithm(age, tot_chol, sbp, gender, smoking)*100
-        client.plic[coll_name].update_one({"_id": i["_id"]}, {"$set": {"score": score}})
-
-
-def score_to_collection(coll_name):
-    if coll_name == "milano":
-        score_to_collection_milano()
+        client.plic[coll_name].update_one(
+            {"_id": i["_id"]}, {"$set": {"score": score}}
+        )
