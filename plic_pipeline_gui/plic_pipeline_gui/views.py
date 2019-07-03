@@ -92,8 +92,11 @@ class PatientDetailsView(FormView):
                 form.cleaned_data["patient_id"], self.study.title()
             ))
             return redirect("collection", name=self.study)
+        plot_cols = ["score", "lab:calculated_ldl"] + [
+            x for x in q[0] if "imt_cc_average" in x
+        ]
         divs, scripts = [], []
-        for plot in somenzi_cazzo.patient_plots(q):
+        for plot in somenzi_cazzo.patient_plots(q, plot_cols):
             script, div = embed.components(plot)
             divs.append(div)
             scripts.append(script)
@@ -102,6 +105,7 @@ class PatientDetailsView(FormView):
             q=q,
             divs=divs,
             scripts=scripts,
+            plot_cols=plot_cols,
             **self.kwargs
         )
         return render(
