@@ -7,6 +7,21 @@ from bokeh import plotting, embed
 from bokeh.models import Range1d
 
 
+_LABELS = {
+    "score": "SCORE",
+    "lab:calculated_ldl": "LDL",
+    "ult_tsa:imt_cc_average_left": "IMT avg left",
+    "ult_tsa:imt_cc_average_right": "IMT avg right",
+}
+
+units = {
+    "score": "%",
+    "lab:calculated_ldl": "mg/dL",
+    "ult_tsa:imt_cc_average_left": "mm",
+    "ult_tsa:imt_cc_average_right": "mm",
+}
+
+
 def example_graph1(patients):
     cats = ["< 1", "1 < x < 2", "2 < x < 5", "> 5"]
     vals = [0, 0, 0, 0]
@@ -86,16 +101,17 @@ def patient_plots(visits, plot_cols):
                 vals[col].append(None)
     for var in vals:
         plot = plotting.figure(
-            title=var,
+            title=var in _LABELS and _LABELS[var] or var,
             plot_width=250,
             plot_height=250
         )
-        plot.line(range(1,len(vals[var])+1), vals[var])
+        plot.line(range(1,len(vals[var])+1), vals[var], line_dash=[3, 5])
         plot.circle(range(1,len(vals[var])+1), vals[var])
         plot.xaxis.ticker = list(range(1,len(vals[var])+1))
         plot.xgrid.visible = False
         plot.ygrid.visible = False
         plot.xaxis.axis_label = "# visit"
+        plot.yaxis.axis_label = var in units and units[var] or None
         plot.toolbar.logo = None
         plot.toolbar_location = None
         plots.append(plot)
