@@ -1,7 +1,10 @@
 import os
 import re
 import pydicom
-import glob
+
+
+class CustomError(Exception):
+    pass
 
 
 def metacrop2(file):
@@ -36,19 +39,23 @@ def curves_callback(dataset, data_element):
         del dataset[data_element.tag]
 
 
-def anonymize(root, root_out):
-    root = "C:/Users/julix/Documents/temp/chierici eco"
-    root_out = "C:/Users/julix/Documents/temp/chierici eco/anon"
+def anonymize(root, root_out=False):
+
     # image expected dimensions
     rows = 576
     cols = 640
 
-    for file in glob.glob(os.path.join(root, "*.dcm")):
+    if not root_out:
+        root_out = root
+
+    for file in [x for x in os.listdir(root) if x.endswith(".dcm")]:
         t2tag = 'PatientBirthDate'
         fn = os.path.join(root, file)
         ds = pydicom.read_file(fn)
 
-        # check image size
+        if ds.Manufacturer != "SAMSUNG MEDISON CO., LTD." or ds.ManufacturerModelName != "HM70A":
+            raise CustomError(
+             f"File '{file}' was created by unsupported machine model: {ds.Manufacturer} - {ds.ManufacturerModelName}")
 
         if ds.Rows == rows and ds.Columns == cols:
 
@@ -75,10 +82,15 @@ def anonymize(root, root_out):
             pdata = metacrop2(ds)
             ds.Rows, ds.Columns, _ = pdata.shape
             ds.PixelData = pdata.tobytes()
-
-            out_dir = os.path.join(root_out, str(patientID))
+            new_raw_path = os.path.join(root, str(patientID) + "_raw")
+            os.makedirs(new_raw_path, exist_ok=True)
+            os.rename(os.path.join(root, file), os.path.join(new_raw_path, file))
+            out_dir = os.path.join(root_out, str(patientID) + "_anonymized")
+            dicom_name = (str(patientID))
             os.makedirs(out_dir, exist_ok=True)
-            out_dicom = os.path.join(out_dir, dicom_name)
+            out_dicom = \
+                os.path.join(out_dir, dicom_name + \
+                             f"_{str(len([x for x in os.listdir(out_dir) if x.endswith('.dcm')])).zfill(4)}" + ".dcm")
 
             # write DICOM Standard compliant file
 
@@ -87,4 +99,7 @@ def anonymize(root, root_out):
 
 
 if __name__ == "__main__":
-    anonymize()
+    anonymize("C:/Users/julix/Documents/temp/chierici eco/dcm")
+
+# TODO get a demo selection of images to use, and prepare them by blurring sensitive data/inserting false names
+# TODO check difference between Chiesa/Milano/Val di Non images, decide accordingly
