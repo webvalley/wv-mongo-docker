@@ -36,11 +36,14 @@ def curves_callback(dataset, data_element):
         del dataset[data_element.tag]
 
 
-def anonymize(root, root_out):
+def anonymize(root, root_out=False):
 
     # image expected dimensions
     rows = 576
     cols = 640
+
+    if not root_out:
+        root_out = root
 
     for file in glob.glob(os.path.join(root, "*.dcm")):
         t2tag = 'PatientBirthDate'
@@ -75,9 +78,10 @@ def anonymize(root, root_out):
             ds.Rows, ds.Columns, _ = pdata.shape
             ds.PixelData = pdata.tobytes()
 
-            out_dir = os.path.join(root_out, str(patientID))
+            out_dir = os.path.join(root_out, str(patientID) + "_anonymized")
+            dicom_name = (str(patientID))
             os.makedirs(out_dir, exist_ok=True)
-            out_dicom = os.path.join(out_dir, dicom_name)
+            out_dicom = os.path.join(out_dir, dicom_name+f"_{str(len(os.listdir(out_dir))).zfill(4)}"+".dcm")
 
             # write DICOM Standard compliant file
 
@@ -86,8 +90,7 @@ def anonymize(root, root_out):
 
 
 if __name__ == "__main__":
-    anonymize("C:/Users/julix/Documents/temp/chierici eco/dcm",
-              "C:/Users/julix/Documents/temp/chierici eco/anon")
+    anonymize("C:/Users/julix/Documents/temp/chierici eco/dcm", "C:/Users/julix/Documents/temp/chierici eco/anon")
 
 # TODO get a demo selection of images to use, and prepare them by blurring sensitive data/inserting false names
 # TODO check difference between Chiesa/Milano/Val di Non images, decide accordingly
