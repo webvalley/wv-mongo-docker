@@ -64,7 +64,7 @@ class CollectionDetailView(TemplateView):
     def get_context_data(self, **kw):
         ctx = super().get_context_data(**kw)
         client = monplic.get_client()
-        patients = [x for x in client.plic["milano"].find()]
+        patients = [x for x in client.plic[self.kwargs["name"]].find()]
         divs, scripts = [], []
         for plot in somenzi_cazzo.collection_graphs(patients):
             script, div = embed.components(plot)
