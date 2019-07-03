@@ -1,6 +1,6 @@
 {% extends "base.html" %}{% load i18n static %}
 
-{% block title %}({{name|title}}){% endblock %}
+{% block title %}#{{patient_id}} ({{name|title}}){% endblock %}
 
 {% block extrahead %}
 <link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-1.2.0.min.css" type="text/css" />
@@ -14,14 +14,67 @@
 <script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-api-1.2.0.min.js"></script>
 <script type="text/javascript" src="https://cdn.pydata.org/bokeh/release/bokeh-api-1.2.0.min.js"></script>
 
-{% for s in scripts %}
-{{ s|safe }}
-{% endfor %}
+{% for s in scripts %}{{s|safe}}{% endfor %}
 
 {% endblock %}
 
 {% block content %}
 
-Patient - in study {{name}}
+<script type="text/javascript">
+
+function showHide(id) {
+  $("#v-"+id+"-data").slideToggle(function() {
+    if ($("#v-"+id+"-data").is(":visible")) {$("#v-"+id+"-btn").attr("class", "float-right fas fa-minus-circle");}
+    if (!$("#v-"+id+"-data").is(":visible")) {$("#v-"+id+"-btn").attr("class", "float-right fas fa-plus-circle");}
+  });
+}
+
+</script>
+
+<div class="row">
+  <div class="col-lg-1">
+    <a href="{% url 'collection' name=name %}" class="btn btn-lg btn-primary btn-block">
+      <i class="fas fa-arrow-left"></i>
+    </a>
+  </div>
+  <div class="page-header col-lg-11">
+    <h1>
+      <i class="fas fa-search"></i> Patient #{{patient_id}} in {{name|title}}
+    </h1>
+  </div>
+</div>
+
+<br>
+
+<div class="row">
+  {% for d in divs %}
+  <div class="col-lg-3">{{d|safe}}</div>
+  {% endfor %}
+</div>
+
+<br>
+<div class="row">
+  <div class="col-lg-12">
+    {% for visit in q %}
+    <div class="alert alert-secondary">
+      <h3>{% trans "Visit n." %}
+        {% if "visit:visit" in visit %}{{visit|get_item:"visit:visit"|add:1}}
+        {% else %}{{forloop.counter}}{% endif %}
+        <i id="v-{{forloop.counter}}-btn" class="float-right fas fa-plus-circle" onclick="showHide('{{forloop.counter}}');"></i>
+      </h3>
+      <div id="v-{{forloop.counter}}-data" style="display:none;">
+        <div class="row">
+          {% for prop in visit %}{% if prop != "_id" %}
+          <div class="col-lg-4"><b>{{prop}}</b> {{visit|get_item:prop}}</div>
+          {% endif %}{% endfor %}
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="col-lg-4">
+
+  </div>
+</div>
 
 {% endblock %}

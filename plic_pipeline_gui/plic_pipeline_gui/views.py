@@ -89,7 +89,18 @@ class PatientDetailsView(FormView):
                 form.cleaned_data["patient_id"], self.study.title()
             ))
             return redirect("collection", name=self.study)
-        ctx = self.get_context_data(**self.kwargs)
+        divs, scripts = [], []
+        for plot in somenzi_cazzo.patient_plots(q):
+            script, div = embed.components(plot)
+            divs.append(div)
+            scripts.append(script)
+        ctx = self.get_context_data(
+            patient_id=form.cleaned_data["patient_id"],
+            q=q,
+            divs=divs,
+            scripts=scripts,
+            **self.kwargs
+        )
         return render(
             self.request,
             "patient_details.html",
