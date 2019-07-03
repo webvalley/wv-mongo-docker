@@ -18,6 +18,9 @@ def push_df(df, coll):
     for idx, row in df.iterrows():
         a = dict(row)
         a["patient_id"] = idx
+        if "cod_pz:subject_id" in row:
+            a["patient_id"] = a["cod_pz:subject_id"]
+            del a["cod_pz:subject_id"]
         db[coll].insert_one(a)
     client.close()
 

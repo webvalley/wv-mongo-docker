@@ -72,3 +72,29 @@ def collection_graphs(patients):
         x(patients) for x in f
     ] #+ plot_for_each_variable(patients)
     return plots
+
+
+def patient_plots(visits):
+    plot_cols = ["score", "lab:calculated_ldl"] + [
+        x for x in visits[0] if "imt_cc_average" in x
+    ]
+    plots = []
+    vals = {x: [] for x in plot_cols}
+    for v in visits:
+        for col in plot_cols:
+            if col in v:
+                vals[col].append(v[col])
+            else:
+                vals[col].append(None)
+    for var in vals:
+        plot = plotting.figure(
+            title=var,
+            plot_width=250,
+            plot_height=250
+        )
+        plot.circle(range(1,len(vals[var])+1), vals[var])
+        plot.xaxis.ticker = list(range(1,len(vals[var])+1))
+        plot.xgrid.visible = False
+        plot.ygrid.visible = False
+        plots.append(plot)
+    return plots
