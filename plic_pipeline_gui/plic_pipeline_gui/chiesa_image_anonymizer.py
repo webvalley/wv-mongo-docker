@@ -1,7 +1,10 @@
 import os
 import re
 import pydicom
-import glob
+
+
+class CustomError(Exception):
+    pass
 
 
 def metacrop2(file):
@@ -50,7 +53,9 @@ def anonymize(root, root_out=False):
         fn = os.path.join(root, file)
         ds = pydicom.read_file(fn)
 
-        # check image size
+        if ds.Manufacturer != "SAMSUNG MEDISON CO., LTD." or ds.ManufacturerModelName != "HM70A":
+            raise CustomError(
+             f"File '{file}' was created by unsupported machine model: {ds.Manufacturer} - {ds.ManufacturerModelName}")
 
         if ds.Rows == rows and ds.Columns == cols:
 
