@@ -5,13 +5,17 @@ import pydicom
 import os
 
 
+class CustomError(Exception):
+    pass
+
+
 class AxialClassifier:
 
     def __init__(self, in_dir, out_dir = False):
         self.files_in_dir = in_dir
         self.files_out_dir = out_dir
         self.files_out_new_dirs = []
-        self.file_list = os.listdir(in_dir)
+        self.file_list = [x for x in os.listdir(in_dir) if x.endswith(".dcm")]
         self.x = []
         self.model = None
         self.classified_list = []
@@ -24,8 +28,10 @@ class AxialClassifier:
             img = pydicom.dcmread(os.path.join(self.files_in_dir, filename)).pixel_array[:, :, 0]
             im_rez = skimage.transform.resize(img, (256, 256, 1))
             self.x.append(im_rez)
-
-        self.x = np.array(self.x)
+        if len(self.x) > 0:
+            self.x = np.array(self.x)
+        else:
+            raise CustomError("No files in directory")
 
     def classify_axis(self):
         prediction = self.model.predict(self.x)
