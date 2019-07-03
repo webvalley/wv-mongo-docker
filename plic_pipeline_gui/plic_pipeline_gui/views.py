@@ -1,10 +1,11 @@
 # Copyright (c) 2019 Marco Marinello <marco.marinello@school.rainerum.it>
 
-from django.views.generic import View
+from django.contrib import messages
 from django.http import HttpResponse, StreamingHttpResponse
+from django.views.generic import View
 from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from shutil import copyfile
 from bokeh import embed
 from . import forms, pipeline, monplic, somenzi_cazzo
@@ -68,4 +69,29 @@ class CollectionDetailView(TemplateView):
             scripts.append(script)
         ctx["scripts"] = scripts
         ctx["divs"] = divs
+        ctx["queryform"] = forms.PatientQueryForm
         return ctx
+
+
+class PatientDetailsView(FormView):
+    template_name = "collection.html"
+    form_class = forms.PatientQueryForm
+    extra_context = {"queryform": forms.PatientQueryForm}
+
+    def form_valid(self, form):
+        self.study = self.kwargs["name"]
+        self.client = monplic.get_client()
+        q = list(self.client.plic[self.study].find(
+            {"patient_id": form.cleaned_data["patient_id"]}
+        ))
+        if len(q) < 1:
+            messages.warning(self.request, "Patient #%s does not exist in %s" % (
+                form.cleaned_data["patient_id"], self.study.title()
+            ))
+            return redirect("collection", name=self.study)
+        ctx = self.get_context_data(**self.kwargs)
+        return render(
+            self.request,
+            "patient_details.html",
+            ctx
+        )

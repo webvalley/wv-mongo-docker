@@ -1,6 +1,6 @@
 {% extends "base.html" %}{% load i18n static %}
 
-{% block title %}{{name|title}} {% trans "details" %}{% endblock %}
+{% block title %}({{name|title}}){% endblock %}
 
 {% block extrahead %}
 <link rel="stylesheet" href="https://cdn.pydata.org/bokeh/release/bokeh-1.2.0.min.css" type="text/css" />
@@ -22,41 +22,6 @@
 
 {% block content %}
 
-<div class="row">
-  <div class="col-lg-1">
-    <a href="{% url 'index' %}" class="btn btn-lg btn-primary btn-block">
-      <i class="fas fa-arrow-left"></i>
-    </a>
-  </div>
-  <div class="page-header col-lg-5">
-    <h1>
-      <i class="fas fa-info-circle"></i> {{name|title}}
-    </h1>
-  </div>
-  <div class="col-lg-6">
-    <div class="alert alert-primary">
-      <form action="{% url 'pat_details' name=name %}" method="POST">
-        <div class="row">
-          <div class="col-lg-8">
-            <b>{% trans "SEARCH" %}</b><br>
-            {% csrf_token %}
-            {{queryform.as_p}}
-          </div>
-          <div class="col-lg-4">
-            <button role="submit" href="#upload" class="btn btn-lg btn-block btn-success" style="color: white;">
-              <i class="fas fa-search" aria-hidden="true"></i>
-              {% trans "Search" %}
-            </button>
-          </div>
-        </div>
-      </form>
-    </div>
-  </div>
-</div>
-
-
-{% for d in divs %}
-{{ d|safe }}
-{% endfor %}
+Patient - in study {{name}}
 
 {% endblock %}
