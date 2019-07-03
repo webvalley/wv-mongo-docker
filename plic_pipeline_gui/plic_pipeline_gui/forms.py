@@ -17,5 +17,21 @@ class DatasetImportForm(forms.Form):
         required=False
     )
 
+
+class UltrasoundDataForm(forms.Form):
+    study = forms.ChoiceField(choices=[
+        ["chiesa", "Chiesa in Valmalenco"],
+        ["milano", "Milano"],
+    ])
+
+    archive = forms.FileField()
+
+    mongo_push = forms.BooleanField(
+        label="Push to Mongo",
+        initial=True,
+        required=False
+    )
+
+
 class PatientQueryForm(forms.Form):
     patient_id = forms.IntegerField(widget=TextInput(attrs=dict(size=10)))

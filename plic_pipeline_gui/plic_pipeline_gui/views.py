@@ -13,7 +13,10 @@ from . import forms, pipeline, monplic, somenzi_cazzo
 
 class IndexView(TemplateView):
     template_name = "index.html"
-    extra_context = {"form": forms.DatasetImportForm}
+    extra_context = {
+        "form_clinical": forms.DatasetImportForm,
+        "form_ultrasound": forms.UltrasoundDataForm,
+    }
 
     def get_context_data(self, **kw):
         ctx = super().get_context_data(**kw)

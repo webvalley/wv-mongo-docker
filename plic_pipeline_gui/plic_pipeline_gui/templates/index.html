@@ -4,6 +4,11 @@
 
 {% block content %}
 
+<style type="text/css">
+.white {color:white;}
+.black {color:black;}
+</style>
+
 <div class="page-header">
   <h1><i class="fas fa-tachometer-alt"></i> {% trans "PLIC Dashboard" %}</h1>
 </div>
@@ -38,12 +43,13 @@
 <h2>{% trans "Trigger new import pipeline" %}</h2>
 
 <div class="alert alert-primary">
+  <h3>{% trans "Clincal data" %}</h3>
   <form action="{% url 'do-upload' %}" enctype="multipart/form-data" method="POST">
     {% csrf_token %}
     <div class="row">
       <div class="col-lg-1"></div>
       <div class="col-lg-5">
-        {{form.as_p}}
+        {{form_clinical.as_p}}
       </div>
       <div class="col-lg-4 text-right">
         <br><br>
@@ -55,4 +61,25 @@
     </div>
   </form>
 </div>
+
+<div class="alert alert-primary">
+  <h3>{% trans "Ultrasound images" %}</h3>
+  <form action="{% url 'do-upload' %}" enctype="multipart/form-data" method="POST">
+    {% csrf_token %}
+    <div class="row">
+      <div class="col-lg-1"></div>
+      <div class="col-lg-5">
+        {{form_ultrasound.as_p}}
+      </div>
+      <div class="col-lg-4 text-right">
+        <br><br>
+        <button role="submit" href="#upload" class="btn btn-lg btn-warning" style="color: white;">
+          <i class="fas fa-upload" aria-hidden="true"></i>
+          {% trans "Upload" %}
+        </button>
+      </div>
+    </div>
+  </form>
+</div>
+
 {% endblock %}
