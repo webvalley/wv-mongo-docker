@@ -282,10 +282,25 @@ class PLICImporter:
                 eng_col = tr_dict[target]
                 if ns_in_col and not eng_col.endswith("_yn"):
                     eng_col = eng_col + "_yn"
-                new_cols_names.append("%s:%s" % (col, eng_col))
+                new_col_name = "%s:%s" % (col, eng_col)
+                new_cols_names.append(new_col_name)
             else:
                 new_cols_names.append("%s:%s" % (col, target))
-        self.df.columns = new_cols_names
+        fixed_new_cols_names = new_cols_names
+        if self.study == "chiesa":
+            fixed_new_cols_names = self.mv_lab_to_ult_tsa(new_cols_names)
+        self.df.columns = fixed_new_cols_names
+
+    def mv_lab_to_ult_tsa(self, new_cols_names):
+        fixed_new_cols_names = []
+        do_replace = False
+        for col in new_cols_names:
+            if col.startswith("lab:imt") and not do_replace:
+                do_replace = True
+            if do_replace and ":" in col and col.startswith("lab:"):
+                col = "ult_tsa:%s" % col.split(":")[1]
+            fixed_new_cols_names.append(col)
+        return fixed_new_cols_names
 
     def yn_to_int(self):
         for col in [x for x in self.df.columns.values if "_yn" in x]:
