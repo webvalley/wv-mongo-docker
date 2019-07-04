@@ -128,7 +128,7 @@ def boxplot_trajectories_rf(*args):
 
 def feature_randomforest_10classes(*args):
     ROOT = "./plot_datasets"
-    df_list = [pd.DataFrame.from_csv(os.path.join(ROOT, f'rf_score_traj_rankedVariables_{i}.txt'), sep='\t') for i in range(2,5)]
+    df_list = [pd.read_csv(os.path.join(ROOT, f'rf_score_traj_rankedVariables_{i}.txt'), sep='\t') for i in range(2,5)]
     df_list[0]['score_2'].to_frame()
     tmp = df_list[0].merge(df_list[1], left_index=True, right_index=True)
     for i in range(len(df_list)):
@@ -141,7 +141,7 @@ def feature_randomforest_10classes(*args):
     source=ColumnDataSource(dict(feat=mean.index, score=mean.values))
     features = mean_df['feat'].values[idx[:7]].tolist()
     x = mean_df['score'].values[idx[:7]].tolist()
-    dot = plotting.figure(title="", tools="", toolbar_location=None, y_range=features, x_range=[0,300])
+    dot = plotting.figure(title="", tools="", toolbar_location=None) #, y_range=features) #, x_range=range(0,300))
     dot.segment(0, features, x, features, line_width=4, line_color="green")
     dot.circle(x, features, size=15, fill_color="orange", line_color="green", line_width=3)
 
@@ -165,7 +165,7 @@ def feature_randomforest_15classes(*args):
             'General'   : mean.values[idx[:7]].tolist()}
     print(data['diseases'], type(data['diseases']))
     p = plotting.figure(
-        #x_range=data['diseases'],
+        #x_range=[0,7],
         plot_width=800,
         plot_height=750,
         title="Deaths by cause, Male-Stack",
