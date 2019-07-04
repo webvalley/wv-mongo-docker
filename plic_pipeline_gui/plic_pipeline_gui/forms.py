@@ -1,6 +1,7 @@
 # Copyright (c) 2019 Marco Marinello <marco.marinello@school.rainerum.it>
 from django import forms
 from django.forms.widgets import TextInput
+from django.core.exceptions import ValidationError
 
 
 class DatasetImportForm(forms.Form):
@@ -20,8 +21,8 @@ class DatasetImportForm(forms.Form):
 
 class UltrasoundDataForm(forms.Form):
     study = forms.ChoiceField(choices=[
+        ["val_di_non", "Val di Non"],
         ["chiesa", "Chiesa in Valmalenco"],
-        ["milano", "Milano"],
     ])
 
     archive = forms.FileField()
@@ -31,6 +32,12 @@ class UltrasoundDataForm(forms.Form):
         initial=True,
         required=False
     )
+
+
+    def clean(self):
+        if not self.cleaned_data["archive"].temporary_file_path().endswith(".zip"):
+            raise ValidationError("Uploaded file is not a zip archive")
+        return self.cleaned_data
 
 
 class PatientQueryForm(forms.Form):
