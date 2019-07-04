@@ -1,3 +1,9 @@
+# Copyright (c) 2019 Daniel Marcon
+# Copyright (c) 2019 Matteo Zigante
+# Copyright (c) 2019 Pietro Moretto
+# The code was adapted to django by
+# Copyright (c) 2019 Julian Modanese <01modjul@rgtfo-me.it>
+
 import os
 import re
 import pydicom
