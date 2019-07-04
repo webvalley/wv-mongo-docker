@@ -43,7 +43,7 @@
 <h2>{% trans "Trigger new import pipeline" %}</h2>
 
 <div class="alert alert-primary">
-  <h3>{% trans "Clincal data" %}</h3>
+  <h3>{% trans "Clinical data" %}</h3>
   <form action="{% url 'do-upload' %}" enctype="multipart/form-data" method="POST">
     {% csrf_token %}
     <div class="row">
