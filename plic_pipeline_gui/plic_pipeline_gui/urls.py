@@ -21,6 +21,7 @@ urlpatterns = [
     path("", views.IndexView.as_view(), name="index"),
     path("upload", views.preUpload.as_view(), name="do-upload"),
     path("upload/ajax", views.UploadAjax.as_view(), name="do-ajax-upload"),
+    path("anonymize", views.UploadImages.as_view(), name="do-images-upload"),
     path("collection/<str:name>", views.CollectionDetailView.as_view(), name="collection"),
     path("collection/<str:name>/patient", views.PatientDetailsView.as_view(), name="pat_details"),
 ]

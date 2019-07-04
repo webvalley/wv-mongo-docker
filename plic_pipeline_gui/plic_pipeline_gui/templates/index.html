@@ -64,7 +64,7 @@
 
 <div class="alert alert-primary">
   <h3>{% trans "Ultrasound images" %}</h3>
-  <form action="{% url 'do-upload' %}" enctype="multipart/form-data" method="POST">
+  <form action="{% url 'do-images-upload' %}" enctype="multipart/form-data" method="POST">
     {% csrf_token %}
     <div class="row">
       <div class="col-lg-1"></div>

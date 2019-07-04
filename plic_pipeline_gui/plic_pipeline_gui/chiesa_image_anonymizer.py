@@ -54,7 +54,10 @@ def anonymize(root, root_out=False):
     if not root_out:
         root_out = root
 
-    for file in [x for x in os.listdir(root) if x.endswith(".dcm")]:
+    fileslist = [x for x in os.listdir(root) if x.endswith(".dcm")]
+    outdirs = []
+
+    for file in fileslist:
         t2tag = 'PatientBirthDate'
         fn = os.path.join(root, file)
         ds = pydicom.read_file(fn)
@@ -92,6 +95,7 @@ def anonymize(root, root_out=False):
             os.makedirs(new_raw_path, exist_ok=True)
             os.rename(os.path.join(root, file), os.path.join(new_raw_path, file))
             out_dir = os.path.join(root_out, str(patientID) + "_anonymized")
+            outdirs.append(out_dir)
             dicom_name = (str(patientID))
             os.makedirs(out_dir, exist_ok=True)
             out_dicom = \
@@ -102,6 +106,8 @@ def anonymize(root, root_out=False):
 
             if not os.path.isfile(out_dicom):
                 pydicom.filewriter.write_file(out_dicom, ds, write_like_original=False)
+
+    return len(fileslist), outdirs
 
 
 if __name__ == "__main__":

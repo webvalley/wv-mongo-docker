@@ -8,7 +8,22 @@ from django.views.generic.edit import FormView
 from django.shortcuts import render, redirect
 from shutil import copyfile
 from bokeh import embed
-from . import forms, pipeline, monplic, somenzi_cazzo
+import tempfile, zipfile
+from . import forms, pipeline, monplic, somenzi_cazzo, chiesa_image_anonymizer
+from .image_axial_classification import AxialClassifier
+
+_LABELS = {
+    'ana': 'Anagrafica',
+    'ana_fis': 'Anamnesi Fisiologica',
+    'ana_pat': 'Anamnesi Patologica',
+    'ana_far': 'Anamnesi Farmacologica',
+    'esa_obi': 'Esame Obiettivo',
+    'lab': 'Laboratorio',
+    'ult_tsa': 'Ultrasound Tsa',
+    'end': 'Endotelio',
+    'lun_bod_sca': 'Lunar Body Scan',
+    'eco_art': 'Ecodoppler Arti'
+}
 
 
 class IndexView(TemplateView):
@@ -27,7 +42,10 @@ class IndexView(TemplateView):
 class preUpload(FormView):
     template_name = "index.html"
     form_class = forms.DatasetImportForm
-    extra_context = {"form": forms.DatasetImportForm}
+    extra_context = {
+        "form_clinical": forms.DatasetImportForm,
+        "form_ultrasound": forms.UltrasoundDataForm,
+    }
 
     def form_valid(self, form):
         # The original tempfile is being deleted when the request finishes
@@ -58,6 +76,36 @@ class UploadAjax(View):
         )
 
 
+class UploadImages(FormView):
+    template_name = "index.html"
+    form_class = forms.UltrasoundDataForm
+    extra_context = {
+        "form_clinical": forms.DatasetImportForm,
+        "form_ultrasound": forms.UltrasoundDataForm,
+    }
+
+    def form_invalid(self, form):
+        messages.warning(self.request, form.errors)
+        return redirect("index")
+
+    def form_valid(self, form):
+        # Unzip the archive
+        tmp = tempfile.mkdtemp()
+        unzipper = zipfile.ZipFile(form.cleaned_data["archive"].temporary_file_path(), "r")
+        unzipper.extractall(tmp)
+        unzipper.close()
+        total, outdirs = chiesa_image_anonymizer.anonymize(tmp)
+        for o in outdirs:
+            print(o)
+            classifier = AxialClassifier(o)
+            classifier.import_model("plic_pipeline_gui/NN_model/model_even_better.h5")
+            classifier.img_to_array_list()
+            print(classifier.classify_axis())
+            classifier.move_files_to_new_folders()
+        messages.success(self.request, "Import OK: %d images anonymized" % total)
+        return redirect("index")
+
+
 class CollectionDetailView(TemplateView):
     template_name = "collection.html"
 
@@ -73,6 +121,7 @@ class CollectionDetailView(TemplateView):
         ctx["scripts"] = scripts
         ctx["divs"] = divs
         ctx["queryform"] = forms.PatientQueryForm
+        ctx["labels"] = _LABELS
         return ctx
 
 
@@ -143,18 +192,7 @@ class PatientDetailsView(FormView):
             divs=divs,
             scripts=scripts,
             plot_cols=plot_cols,
-            labels={
-                'ana': 'Anagrafica',
-                'ana_fis': 'Anamnesi Fisiologica',
-                'ana_pat': 'Anamnesi Patologica',
-                'ana_far': 'Anamnesi Farmacologica',
-                'esa_obi': 'Esame Obiettivo',
-                'lab': 'Laboratorio',
-                'ult_tsa': 'Ultrasound Tsa',
-                'end': 'Endotelio',
-                'lun_bod_sca': 'Lunar Body Scan',
-                'eco_art': 'Ecodoppler Arti'
-            },
+            labels=_LABELS,
             **self.kwargs
         )
         return render(
