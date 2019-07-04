@@ -90,7 +90,7 @@ def collection_graphs(patients):
     return plots
 
 
-def patient_plots(visits, plot_cols):
+def patient_plots(visits, plot_cols, axes_limits):
     plots = []
     vals = {x: [] for x in plot_cols}
     for v in visits:
@@ -114,5 +114,6 @@ def patient_plots(visits, plot_cols):
         plot.yaxis.axis_label = var in units and units[var] or None
         plot.toolbar.logo = None
         plot.toolbar_location = None
+        plot.y_range = Range1d(*axes_limits[var])
         plots.append(plot)
     return plots
