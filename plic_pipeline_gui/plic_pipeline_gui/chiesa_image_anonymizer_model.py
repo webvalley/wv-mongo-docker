@@ -1,3 +1,7 @@
+# Copyright (c) 2019 Daniel Marcon
+# The code was adapted to django by
+# Copyright (c) 2019 Julian Modanese <01modjul@rgtfo-me.it>
+
 import os
 import numpy as np
 import pydicom
@@ -24,11 +28,11 @@ class ChiesaImageAnonymizerModel:
         self.files_list = []
 
     def load_model(self):
-        json_file = open('NN_model/model_struct.json', 'r')
+        json_file = open('plic_pipeline_gui/NN_model/model_struct.json', 'r')
         loaded_model_json = json_file.read()
         json_file.close()
         model = model_from_json(loaded_model_json)
-        model.load_weights("NN_model/model_weights.h5")
+        model.load_weights("plic_pipeline_gui/NN_model/model_weights.h5")
         return model
 
     def load_images(self):
