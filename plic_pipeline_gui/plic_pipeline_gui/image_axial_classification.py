@@ -31,7 +31,7 @@ class AxialClassifier:
         if len(self.x) > 0:
             self.x = np.array(self.x)
         else:
-            raise CustomError("No files in directory")
+            raise CustomError(f"No Dicom files in directory: {self.files_in_dir}")
 
     def classify_axis(self):
         prediction = self.model.predict(self.x)
