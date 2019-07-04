@@ -21,8 +21,8 @@ class DatasetImportForm(forms.Form):
 
 class UltrasoundDataForm(forms.Form):
     study = forms.ChoiceField(choices=[
-        ["val_di_non", "Val di Non"],
         ["chiesa", "Chiesa in Valmalenco"],
+        ["val_di_non", "Val di Non"],
     ])
 
     archive = forms.FileField()
