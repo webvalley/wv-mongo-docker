@@ -8,7 +8,9 @@ from django.views.generic.edit import FormView
 from django.shortcuts import render, redirect
 from shutil import copyfile
 from bokeh import embed
-import os, tempfile, zipfile
+from io import BytesIO
+from PIL import Image
+import os, tempfile, zipfile, pydicom
 from . import forms, pipeline, monplic, somenzi_cazzo, chiesa_image_anonymizer
 from .image_axial_classification import AxialClassifier
 
@@ -190,6 +192,11 @@ class PatientDetailsView(FormView):
                 imt[1] = axes[col][1]
         for col in [x for x in plot_cols if "imt_cc" in x]:
             axes[col] = imt
+        # Look for imaging of this patient
+        q_img = self.client.plic["%s_imaging" % self.study].find({
+            "patient_id": form.cleaned_data["patient_id"]
+        })
+        # Compute plots
         divs, scripts = [], []
         for plot in somenzi_cazzo.patient_plots(q, plot_cols, axes):
             script, div = embed.components(plot)
@@ -203,6 +210,7 @@ class PatientDetailsView(FormView):
             scripts=scripts,
             plot_cols=plot_cols,
             labels=_LABELS,
+            imaging=q_img,
             **self.kwargs
         )
         return render(
@@ -210,3 +218,16 @@ class PatientDetailsView(FormView):
             "patient_details.html",
             ctx
         )
+
+
+class DisplayDICOM(View):
+    def get(self, request, study, pat_id, img_id):
+        self.client = monplic.get_client()
+        q = list(self.client.plic["%s_imaging" % study].find({"patient_id": pat_id}))
+        f = q[img_id-1]
+        stream = BytesIO(f["image"])
+        dataset = pydicom.dcmread(stream)
+        image = Image.fromarray(dataset.pixel_array)
+        out = BytesIO()
+        image.save(out, format="png")
+        return HttpResponse(out.getvalue(), content_type="image/png")

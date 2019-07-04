@@ -84,4 +84,20 @@ function showHide(id) {
 </div>
 {% endfor %}
 
+{% if imaging %}
+<h3>{% trans "Imaging" %}</h3>
+<br>
+<div class="row">
+{% for i in imaging %}
+  <div class="col-lg-4 pt-2 text-right">
+    {% if i|get_item:"sagittal" %}<span class="badge badge-success">{% trans "Sagittal" %}</span>
+    {% else %}<span class="badge badge-danger">{% trans "Non sagittal" %}</span>
+    {% endif %}
+    <img src="{% url 'dicom-img' pat_id=q.0|get_item:'patient_id' study=name img_id=forloop.counter %}"
+      style="max-width:100%;">
+  </div>
+{% endfor %}
+</div>
+{% endif %}
+
 {% endblock %}

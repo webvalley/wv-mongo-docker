@@ -24,4 +24,5 @@ urlpatterns = [
     path("anonymize", views.UploadImages.as_view(), name="do-images-upload"),
     path("collection/<str:name>", views.CollectionDetailView.as_view(), name="collection"),
     path("collection/<str:name>/patient", views.PatientDetailsView.as_view(), name="pat_details"),
+    path("imaging/<str:study>/<int:pat_id>/<int:img_id>", views.DisplayDICOM.as_view(), name="dicom-img"),
 ]
