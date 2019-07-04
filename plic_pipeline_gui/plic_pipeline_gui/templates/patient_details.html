@@ -63,31 +63,25 @@ function showHide(id) {
 {% endif %}
 
 <br>
-<div class="row">
-  <div class="col-lg-12">
-    {% for visit in not_q %}
-    <div class="alert alert-secondary">
-      <h3>{% trans "Visit n." %}
-        {% if visit.0 %}{{visit.0|add:1}}
-        {% else %}{{forloop.counter}}{% endif %}
-        <i id="v-{{forloop.counter}}-btn" class="float-right fas fa-plus-circle" onclick="showHide('{{forloop.counter}}');"></i>
-      </h3>
-      <div id="v-{{forloop.counter}}-data" style="{% if q|length > 1 %}display:none;{% endif %}">
-        <div class="row">
-          {% for cat in visit.1 %}
-          <div class="col-lg-12"><br><h5><b>{{labels|get_item:cat}}</b></h5></div>
-          {% for prop in visit.1|get_item:cat %}
-          {% if prop != "_id" %}
-          <div class="col-lg-4">{{prop|title}}: {{visit.1|get_item:cat|get_item:prop}}</div>
-          {% endif %}{% endfor %}{% endfor %}
-        </div>
-      </div>
-    </div>
-    {% endfor %}
-  </div>
-  <div class="col-lg-4">
 
+{% for visit in not_q %}
+<div class="alert alert-secondary">
+  <h3>{% trans "Visit n." %}
+    {% if visit.0 %}{{visit.0|add:1}}
+    {% else %}{{forloop.counter}}{% endif %}
+    <i id="v-{{forloop.counter}}-btn" class="float-right fas fa-plus-circle" onclick="showHide('{{forloop.counter}}');"></i>
+  </h3>
+  <div id="v-{{forloop.counter}}-data" style="{% if q|length > 1 %}display:none;{% endif %}">
+    <div class="row">
+      {% for cat in visit.1 %}
+      <div class="col-lg-12"><br><h5><b>{{labels|get_item:cat}}</b></h5></div>
+      {% for prop in visit.1|get_item:cat %}
+      {% if prop != "_id" %}
+      <div class="col-lg-4">{{prop|title}}: {{visit.1|get_item:cat|get_item:prop}}</div>
+      {% endif %}{% endfor %}{% endfor %}
+    </div>
   </div>
 </div>
+{% endfor %}
 
 {% endblock %}
