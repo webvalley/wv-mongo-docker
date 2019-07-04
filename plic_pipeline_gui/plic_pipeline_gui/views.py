@@ -11,7 +11,7 @@ from bokeh import embed
 from io import BytesIO
 from PIL import Image
 import os, tempfile, zipfile, pydicom
-from . import forms, pipeline, monplic, somenzi_cazzo, chiesa_image_anonymizer
+from . import forms, pipeline, monplic, somenzi_cazzo, chiesa_image_anonymizer_model
 from .image_axial_classification import AxialClassifier
 
 _LABELS = {
@@ -98,7 +98,8 @@ class UploadImages(FormView):
         unzipper = zipfile.ZipFile(form.cleaned_data["archive"].temporary_file_path(), "r")
         unzipper.extractall(tmp)
         unzipper.close()
-        total, outdirs = chiesa_image_anonymizer.anonymize(tmp)
+        anonymizer = chiesa_image_anonymizer_model.ChiesaImageAnonymizerModel(tmp)
+        total, outdirs = anonymizer.anonymize()
         for o in outdirs:
             print(o)
             classifier = AxialClassifier(o)
