@@ -102,7 +102,7 @@ class UploadImages(FormView):
         for o in outdirs:
             print(o)
             classifier = AxialClassifier(o)
-            classifier.import_model("plic_pipeline_gui/NN_model/model_even_better.h5")
+            classifier.import_model("plic_pipeline_gui/NN_model/model_better_v1.h5")
             classifier.img_to_array_list()
             print(classifier.classify_axis())
             classifier.move_files_to_new_folders()
