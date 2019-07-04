@@ -5,9 +5,15 @@
 # Copyright (c) 2019 Stefano Fioravanzo <stefano.fioravanzo@gmail.com>
 
 import pandas as pd
+import numpy as np
 from bokeh import plotting, embed
-from bokeh.models import Range1d
+from bokeh.models import Range1d, ColumnDataSource, FactorRange, \
+                            Grid, LinearAxis, Plot
+from bokeh.models.glyphs import VBar
 from bokeh.models import ColumnDataSource, Whisker
+from bokeh.transform import factor_cmap
+from bokeh.palettes import Spectral10
+import os
 
 
 _LABELS = {
@@ -48,8 +54,9 @@ def score_classes_plot(patients):
 
 def collection_graphs(patients):
     f = [
-        score_classes_plot,
+        #score_classes_plot,
         boxplot_trajectories_rf,
+        feature_randomforest_10classes
     ]
     plots = [
         x(patients) for x in f
@@ -110,9 +117,63 @@ def boxplot_trajectories_rf(*args):
     p.add_layout(
         Whisker(source=source, base='traj_id', upper="mcc_ts_upper", lower="mcc_ts_lower", level="overlay")
     )
-    p.yaxis.axis_label="MCC"
+    p.yaxis.axis_label = "MCC"
     p.yaxis.axis_label_text_font_size = "25pt"
-    p.xaxis.axis_label="Trajectories"
+    p.xaxis.axis_label = "Trajectories"
     p.xaxis.axis_label_text_font_size = "25pt"
 
     return p
+
+
+def feature_randomforest_10classes(*args):
+    ROOT = "./plot_datasets"
+    df_list= [pd.DataFrame.from_csv(os.path.join(ROOT, f'rf_score_traj_rankedVariables_{i}.txt'), sep='\t') for i in range(2,5)]
+    df_list[0]['score_2'].to_frame()
+
+
+
+
+    tmp = df_list[0].merge(df_list[1], left_index=True, right_index=True)
+    for i in range(len(df_list)):
+        tmp = tmp.merge(df_list[i],left_index=True, right_index=True)
+
+    print(tmp.shape)
+
+    mean = tmp.mean(axis = 1)
+    cols = df_list[0]
+    cols.info
+
+    mean.index
+
+
+
+
+    mean.values
+
+
+
+
+    idx=np.argsort(mean.values)[::-1]
+
+
+
+
+    mean_df= pd.DataFrame({'feat':mean.index,'score':mean})
+
+    mean_df['feat'][idx].values.tolist()
+
+
+
+
+    source=ColumnDataSource(dict(feat=mean.index, score=mean.values))
+
+
+    features= mean_df['feat'].values[idx[:7]].tolist()
+    x= mean_df['score'].values[idx[:7]].tolist()
+
+    dot = plotting.figure(title="", tools="", toolbar_location=None, y_range=features, x_range=[0,300])
+
+    dot.segment(0, features, x, features, line_width=4, line_color="green")
+    dot.circle(x, features, size=15, fill_color="orange", line_color="green", line_width=3)
+
+    return dot
