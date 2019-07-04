@@ -90,6 +90,7 @@ function showHide(id) {
 <div class="row">
 {% for i in imaging %}
   <div class="col-lg-4 pt-2 text-right">
+    <span class="badge badge-warning">{% trans "Anonymized" %}</span>
     {% if i|get_item:"sagittal" %}<span class="badge badge-success">{% trans "Sagittal" %}</span>
     {% else %}<span class="badge badge-danger">{% trans "Non sagittal" %}</span>
     {% endif %}
