@@ -7,6 +7,7 @@
 import pandas as pd
 from bokeh import plotting, embed
 from bokeh.models import Range1d
+from bokeh.models import ColumnDataSource, Whisker
 
 
 _LABELS = {
@@ -48,6 +49,7 @@ def score_classes_plot(patients):
 def collection_graphs(patients):
     f = [
         score_classes_plot,
+        boxplot_trajectories_rf,
     ]
     plots = [
         x(patients) for x in f
@@ -82,3 +84,35 @@ def patient_plots(visits, plot_cols, axes_limits):
         plot.y_range = Range1d(*axes_limits[var])
         plots.append(plot)
     return plots
+
+
+def boxplot_trajectories_rf(*args):
+    dataframe = pd.read_csv(
+        "plot_datasets/rf_score_traj_results.tsv", 0, "\t"
+    )
+    source = ColumnDataSource(dataframe)
+
+    tr_low = dataframe['mcc_tr_lower'].replace(',', '.').astype(float)
+    tr_mean = dataframe['mcc_tr_mean'].replace(',', '.').astype(float)
+    tr_high = dataframe['mcc_tr_upper'].replace(',', '.').astype(float)
+    ts_low = dataframe['mcc_ts_lower'].replace(',', '.').astype(float)
+    ts_mean = dataframe['mcc_ts_mean'].replace(',', '.').astype(float)
+    ts_high = dataframe['mcc_ts_upper'].replace(',', '.').astype(float)
+
+    list_traj = [item for item in range(2,17)]
+
+    p = plotting.figure(tools="", background_fill_color="#efefef", toolbar_location=None)
+    p.circle(list_traj, tr_mean, color='navy')
+    p.add_layout(
+        Whisker(source=source, base='traj_id', upper="mcc_tr_upper", lower="mcc_tr_lower", level="overlay")
+    )
+    p.circle(list_traj, ts_mean, color='red')
+    p.add_layout(
+        Whisker(source=source, base='traj_id', upper="mcc_ts_upper", lower="mcc_ts_lower", level="overlay")
+    )
+    p.yaxis.axis_label="MCC"
+    p.yaxis.axis_label_text_font_size = "25pt"
+    p.xaxis.axis_label="Trajectories"
+    p.xaxis.axis_label_text_font_size = "25pt"
+
+    return p
