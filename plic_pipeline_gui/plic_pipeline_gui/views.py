@@ -157,22 +157,39 @@ def split_in_category(pat):
     return out
 
 
-class PatientDetailsView(FormView):
+class PatientDetailsRedirect(FormView):
     template_name = "collection.html"
     form_class = forms.PatientQueryForm
     extra_context = {"queryform": forms.PatientQueryForm}
 
     def form_valid(self, form):
-        self.study = self.kwargs["name"]
+        return redirect(
+            "pat_details",
+            name=self.kwargs["name"],
+            pat_id=form.cleaned_data["patient_id"]
+        )
+
+
+class PatientDetailsView(TemplateView):
+    template_name = "patient_details.html"
+
+    def dispatch(self, request, *args, **kw):
+        self.study = kw["name"]
+        self.pat_id = kw["pat_id"]
         self.client = monplic.get_client()
-        q = list(self.client.plic[self.study].find(
-            {"patient_id": form.cleaned_data["patient_id"]}
+        self.q = list(self.client.plic[self.study].find(
+        {"patient_id": self.pat_id}
         ))
-        if len(q) < 1:
+        if len(self.q) < 1:
             messages.warning(self.request, "Patient #%s does not exist in %s" % (
-                form.cleaned_data["patient_id"], self.study.title()
+            self.pat_id, self.study.title()
             ))
             return redirect("collection", name=self.study)
+        return super().dispatch(request, *args, **kw)
+
+
+    def get_context_data(self, **kw):
+        q = self.q
         # We need q to be divided in sections
         not_q = [split_in_category(x) for x in q]
         plot_cols = ["score", "lab:calculated_ldl"] + [
@@ -194,7 +211,7 @@ class PatientDetailsView(FormView):
             axes[col] = imt
         # Look for imaging of this patient
         q_img = self.client.plic["%s_imaging" % self.study].find({
-            "patient_id": form.cleaned_data["patient_id"]
+            "patient_id": self.pat_id
         })
         # Compute plots
         divs, scripts = [], []
@@ -202,8 +219,8 @@ class PatientDetailsView(FormView):
             script, div = embed.components(plot)
             divs.append(div)
             scripts.append(script)
-        ctx = self.get_context_data(
-            patient_id=form.cleaned_data["patient_id"],
+        ctx = dict(
+            patient_id=self.pat_id,
             q=q,
             not_q=not_q,
             divs=divs,
@@ -213,11 +230,7 @@ class PatientDetailsView(FormView):
             imaging=q_img,
             **self.kwargs
         )
-        return render(
-            self.request,
-            "patient_details.html",
-            ctx
-        )
+        return ctx
 
 
 class DisplayDICOM(View):
