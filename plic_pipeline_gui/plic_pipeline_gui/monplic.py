@@ -47,7 +47,15 @@ def get_collections():
     client = get_client()
     cls = [
         [x, client.plic[x].count()]
-        for x in client.plic.list_collection_names() if x != "delete_me"
+        for x in client.plic.list_collection_names() if not x.endswith(("delete_me", "_imaging"))
     ]
     client.close()
     return cls
+
+
+def push_dicom(path, sagittal, study):
+    client = get_client()
+    pat_id = int(path.split("/")[-1].replace("_anonymized", "").split("_")[-2])
+    client.plic[study].insert_one({
+        "patient_id": pat_id, "sagittal": sagittal, "image": open(path, "rb").read()
+    })

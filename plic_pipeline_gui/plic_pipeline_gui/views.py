@@ -8,7 +8,7 @@ from django.views.generic.edit import FormView
 from django.shortcuts import render, redirect
 from shutil import copyfile
 from bokeh import embed
-import tempfile, zipfile
+import os, tempfile, zipfile
 from . import forms, pipeline, monplic, somenzi_cazzo, chiesa_image_anonymizer
 from .image_axial_classification import AxialClassifier
 
@@ -89,6 +89,8 @@ class UploadImages(FormView):
         return redirect("index")
 
     def form_valid(self, form):
+        study = form.cleaned_data["study"]
+        img_db = "%s_imaging" % study
         # Unzip the archive
         tmp = tempfile.mkdtemp()
         unzipper = zipfile.ZipFile(form.cleaned_data["archive"].temporary_file_path(), "r")
@@ -102,6 +104,14 @@ class UploadImages(FormView):
             classifier.img_to_array_list()
             print(classifier.classify_axis())
             classifier.move_files_to_new_folders()
+        # Push to mongo if requested
+        if self.request.POST.get("mongo_push") == "on":
+            for o in outdirs:
+                for root, dirs, files in os.walk(o):
+                    for f in [x for x in files if x.endswith(".dcm")]:
+                        full_path = os.path.join(root, f)
+                        sag_flag = "/sagittal/" in full_path
+                        monplic.push_dicom(full_path, sag_flag, img_db)
         messages.success(self.request, "Import OK: %d images anonymized" % total)
         return redirect("index")
 
