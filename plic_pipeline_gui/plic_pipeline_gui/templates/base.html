@@ -27,8 +27,8 @@
       <div class="jumbotron">
         {% for message in messages %}
         <div class="alert alert-{{message.tags}}">
-          {{message}}
           <i class="fas fa-times float-right" onclick="$(this).parent().slideUp();"></i>
+          {{message}}
         </div>
         {% endfor %}
         {% block content %}
