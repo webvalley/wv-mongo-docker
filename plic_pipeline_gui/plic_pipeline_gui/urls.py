@@ -26,4 +26,8 @@ urlpatterns = [
     path("collection/<str:name>/patient/", views.PatientDetailsRedirect.as_view(), name="pat_details_form"),
     path("collection/<str:name>/patient/<int:pat_id>", views.PatientDetailsView.as_view(), name="pat_details"),
     path("imaging/<str:study>/<int:pat_id>/<int:img_id>", views.DisplayDICOM.as_view(), name="dicom-img"),
+    path("imaging/<str:study>/<int:pat_id>/<int:img_id>/change",
+        views.ChangeDICOMClassification.as_view(),
+        name="dicom-img-change-flag"
+    ),
 ]

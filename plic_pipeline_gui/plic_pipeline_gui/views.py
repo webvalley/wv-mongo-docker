@@ -244,3 +244,16 @@ class DisplayDICOM(View):
         out = BytesIO()
         image.save(out, format="png")
         return HttpResponse(out.getvalue(), content_type="image/png")
+
+
+class ChangeDICOMClassification(View):
+    def get(self, request, study, pat_id, img_id):
+        self.client = monplic.get_client()
+        q = list(self.client.plic["%s_imaging" % study].find({"patient_id": pat_id}))
+        f = q[img_id-1]
+        self.client.plic["%s_imaging" % study].update_one(
+            {"_id": f["_id"]},
+            {"$set": {"sagittal": not f["sagittal"], "edited": True}}
+        )
+        messages.success(request, "Flagged as %s" % (not f["sagittal"] and "sagittal" or "not sagittal"))
+        return redirect("pat_details", name=study, pat_id=pat_id)
