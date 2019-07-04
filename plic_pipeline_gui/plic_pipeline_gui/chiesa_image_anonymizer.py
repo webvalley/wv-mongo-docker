@@ -55,7 +55,7 @@ def anonymize(root, root_out=False):
         root_out = root
 
     fileslist = [x for x in os.listdir(root) if x.endswith(".dcm")]
-    outdirs = []
+    outdirs = set()
 
     for file in fileslist:
         t2tag = 'PatientBirthDate'
@@ -95,7 +95,7 @@ def anonymize(root, root_out=False):
             os.makedirs(new_raw_path, exist_ok=True)
             os.rename(os.path.join(root, file), os.path.join(new_raw_path, file))
             out_dir = os.path.join(root_out, str(patientID) + "_anonymized")
-            outdirs.append(out_dir)
+            outdirs.add(out_dir)
             dicom_name = (str(patientID))
             os.makedirs(out_dir, exist_ok=True)
             out_dicom = \
