@@ -15,3 +15,10 @@ test users, dr\_chierici and beatrice.
 The doctor can access the whole `plic` database. The researcher, instead,
 can only read the anonimized data.
 
+
+#### Database dump
+
+To easily backup your Mongo PLIC database you can simply run `db-dump.sh` .
+It will generate a directory under /tmp/mongo/plic with the export. You'll
+be able to re-import the export with mongorestore.
+
