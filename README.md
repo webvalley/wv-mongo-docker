@@ -1,4 +1,4 @@
-# WebValley 2019 MongoDB configuration stuff
+# WebValley 2019 Data Swiffer
 
 ## Work done by the database team, see [AUTHORS](AUTHORS) file
 
